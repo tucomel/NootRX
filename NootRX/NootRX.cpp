@@ -381,10 +381,13 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                     callback->appendLog("NootRX_fix: [XML] aty_properties: DalDisableVActiveDramChange=1\n");
                                 }
                                 if (callback->rdFlags.noMpo) {
-                                    auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
-                                    atyProps->setObject("DalForceSingleDispPipeSplit", v1);
-                                    v1->release();
-                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceSingleDispPipeSplit=1\n");
+                                    auto *vAvoid = OSNumber::withNumber(static_cast<UInt32>(1), 32);
+                                    auto *vNoSplit = OSNumber::withNumber(static_cast<UInt32>(0), 32);
+                                    atyProps->setObject("DalPipeSplitPolicy", vAvoid);
+                                    atyProps->setObject("DalForceSingleDispPipeSplit", vNoSplit);
+                                    vAvoid->release();
+                                    vNoSplit->release();
+                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalPipeSplitPolicy=1 (MPC_SPLIT_AVOID), DalForceSingleDispPipeSplit=0\n");
                                 }
                                 if (callback->rdFlags.noStutter) {
                                     auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
