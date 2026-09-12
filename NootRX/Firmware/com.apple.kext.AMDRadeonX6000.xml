@@ -3,7 +3,7 @@
 		<key>CFBundleIdentifier</key>
 		<string>com.apple.kext.AMDRadeonX6000</string>
 		<key>GPUDCCDisplayable</key>
-		<true/>
+		<false/>
 		<key>GPUDebugNullClientMask</key>
 		<integer>0</integer>
 		<key>GpuDebugPolicy</key>
@@ -110,7 +110,7 @@
 		<key>CFBundleIdentifier</key>
 		<string>com.apple.kext.AMDRadeonX6000</string>
 		<key>GPUDCCDisplayable</key>
-		<true/>
+		<false/>
 		<key>GPUDebugNullClientMask</key>
 		<integer>0</integer>
 		<key>GpuDebugPolicy</key>

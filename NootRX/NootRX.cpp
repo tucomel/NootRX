@@ -358,6 +358,13 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                     auto *driverObj = drivers->getObject(injectedDriverIndex);
                     if (auto *drvDict = OSDynamicCast(OSDictionary, driverObj)) {
                         auto *ioClass = OSDynamicCast(OSString, drvDict->getObject("IOClass"));
+                        if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
+                                        strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
+                            if (callback->rdFlags.noDcc) {
+                                drvDict->setObject("GPUDCCDisplayable", kOSBooleanFalse);
+                                callback->appendLog("NootRX_fix: [XML] AMDRadeonX6000: GPUDCCDisplayable=false (DCC scanout disabled)\n");
+                            }
+                        }
                         if (ioClass && strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AmdRadeonControllerNavi21") == 0) {
                             auto *atyProps = OSDynamicCast(OSDictionary, drvDict->getObject("aty_properties"));
                             auto *atyConfig = OSDynamicCast(OSDictionary, drvDict->getObject("aty_config"));
