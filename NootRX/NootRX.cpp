@@ -403,14 +403,25 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                     auto *v3 = OSNumber::withNumber(static_cast<UInt32>(3), 32);
                                     atyProps->setObject("DalForceMinDpmLevel", v3);
                                     v3->release();
-                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceMinDpmLevel=3 (DPM High floor)\n");
+
+                                    auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
+                                    atyProps->setObject("PP_MclkDpmDisabled", v1);
+                                    v1->release();
+
+                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceMinDpmLevel=3, PP_MclkDpmDisabled=1\n");
                                 }
                             }
-                            if (atyConfig && (callback->rdFlags.noMpo || callback->rdFlags.noStutter)) {
-                                atyConfig->setObject("CFG_USE_STUTTER", kOSBooleanFalse);
-                                atyConfig->setObject("CFG_USE_FBC", kOSBooleanFalse);
-                                atyConfig->setObject("CFG_USE_CPT", kOSBooleanFalse);
-                                callback->appendLog("NootRX_fix: [XML] aty_config: CFG_USE_STUTTER=false, CFG_USE_FBC=false, CFG_USE_CPT=false\n");
+                            if (atyConfig) {
+                                if (callback->rdFlags.noMpo || callback->rdFlags.noStutter) {
+                                    atyConfig->setObject("CFG_USE_STUTTER", kOSBooleanFalse);
+                                    atyConfig->setObject("CFG_USE_FBC", kOSBooleanFalse);
+                                    atyConfig->setObject("CFG_USE_CPT", kOSBooleanFalse);
+                                    callback->appendLog("NootRX_fix: [XML] aty_config: CFG_USE_STUTTER=false, CFG_USE_FBC=false, CFG_USE_CPT=false\n");
+                                }
+                                if (callback->rdFlags.floorDpm) {
+                                    atyConfig->setObject("CFG_FORCEMAXDPM", kOSBooleanTrue);
+                                    callback->appendLog("NootRX_fix: [XML] aty_config: CFG_FORCEMAXDPM=true\n");
+                                }
                             }
                         }
                     }
