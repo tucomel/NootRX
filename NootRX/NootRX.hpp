@@ -41,6 +41,10 @@ struct RedDevilFlags {
     bool noGfxOff {false};
     bool noUlv {false};
     bool noVActiveDram {false};
+    // Opt-in A/B test only.  The 1.0.3 baseline keeps V-Active DRAM changes
+    // disabled; this override exists so one boot can test the native path
+    // without editing the protected EFI DeviceProperties entry.
+    bool nativeVActiveDram {false};
     bool noMpo {false};
     bool noStutter {false};
     bool floorDpm {false};

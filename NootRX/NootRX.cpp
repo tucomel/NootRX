@@ -257,6 +257,21 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
     this->rdFlags.noGfxOff = checkFlag("rd-nogfxoff");
     this->rdFlags.noUlv = checkFlag("rd-noulv");
     this->rdFlags.noVActiveDram = checkFlag("rd-novactivedram");
+    /*
+     * 1.0.3 investigation note:
+     *
+     * The diagnostic log contains one transient DRAM_CLK_CHANGE_WATERMARK_A=0
+     * while the display pipe is being rebuilt, but valid values are present
+     * before and after it.  That is not enough evidence to replace a timing
+     * value in the driver.  The remaining safe experiment is an A/B boot with
+     * the native V-Active DRAM path.  This is deliberately a boot-arg-only
+     * override because the stable EFI baseline already contains
+     * rd-novactivedram=1.  The default path is therefore unchanged.
+     *
+     * Never combine this investigation with MCLK/DPM forcing: the earlier
+     * experiment caused "GDDR6 Long Training Failed" during cold boot.
+     */
+    this->rdFlags.nativeVActiveDram = checkKernelArgument("-rd-vactivedram");
     this->rdFlags.noMpo = checkFlag("rd-nompo");
     this->rdFlags.noStutter = checkFlag("rd-nostutter");
     this->rdFlags.floorDpm = checkFlag("rd-floordpm");
@@ -264,8 +279,9 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
     this->rdFlags.diag = checkFlag("rd-diag") || ADDPR(debugEnabled) || checkKernelArgument("-NRXDebug");
 
     this->appendLog("NootRX_fix: [INIT] Detected GPU 0x%04X:0x%02X\n", this->deviceId, this->pciRevision);
-    this->appendLog("NootRX_fix: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d diag=%d\n",
+    this->appendLog("NootRX_fix: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nativevactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d diag=%d\n",
                     this->rdFlags.noGfxOff, this->rdFlags.noUlv, this->rdFlags.noVActiveDram,
+                    this->rdFlags.nativeVActiveDram,
                     this->rdFlags.noMpo, this->rdFlags.noStutter, this->rdFlags.floorDpm,
                     this->rdFlags.noDcc, this->rdFlags.diag);
 
@@ -381,11 +397,15 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                     v1->release();
                                     callback->appendLog("NootRX_fix: [XML] aty_properties: PP_DisableULV=1\n");
                                 }
-                                if (callback->rdFlags.noVActiveDram) {
+                                if (callback->rdFlags.noVActiveDram && !callback->rdFlags.nativeVActiveDram) {
                                     auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
                                     atyProps->setObject("DalDisableVActiveDramChange", v1);
                                     v1->release();
                                     callback->appendLog("NootRX_fix: [XML] aty_properties: DalDisableVActiveDramChange=1\n");
+                                } else if (callback->rdFlags.nativeVActiveDram) {
+                                    // Opt-in diagnostic path: leave Apple's native
+                                    // V-Active DRAM policy untouched for A/B testing.
+                                    callback->appendLog("NootRX_fix: [TEST] Native V-Active DRAM changes enabled by -rd-vactivedram\n");
                                 }
                                 if (callback->rdFlags.noMpo) {
                                     auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
