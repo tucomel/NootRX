@@ -37,6 +37,17 @@ class NootRXAttributes {
     inline void setNavi23() { this->value |= Navi23; }
 };
 
+struct RedDevilFlags {
+    bool noGfxOff {false};
+    bool noUlv {false};
+    bool noVActiveDram {false};
+    bool noMpo {false};
+    bool noStutter {false};
+    bool floorDpm {false};
+    bool noDcc {false};
+    bool diag {false};
+};
+
 class NootRXMain {
     friend class HWLibs;
     friend class X6000;
@@ -47,6 +58,9 @@ class NootRXMain {
     public:
     void init();
     void processPatcher(KernelPatcher &patcher);
+    void appendLog(const char *fmt, ...) __printflike(2, 3);
+
+    RedDevilFlags rdFlags {};
 
     private:
     void ensureRMMIO();
@@ -55,6 +69,13 @@ class NootRXMain {
     UInt32 readReg32(UInt32 reg);
     void writeReg32(UInt32 reg, UInt32 val);
     const char *getGCPrefix();
+
+    static constexpr size_t kMaxLogBufferSize = 512 * 1024;
+    char *logBuffer {nullptr};
+    size_t logBufferLen {0};
+    IOSimpleLock *logLock {nullptr};
+    thread_call_t debugDumpCall {nullptr};
+    static void saveLogOnDisk(thread_call_param_t param0, thread_call_param_t param1);
 
     NootRXAttributes attributes {};
     IOMemoryMap *rmmio {nullptr};

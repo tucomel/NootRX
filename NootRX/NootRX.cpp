@@ -7,6 +7,7 @@
 #include "PatcherPlus.hpp"
 #include <Headers/kern_api.hpp>
 #include <Headers/kern_devinfo.hpp>
+#include <Headers/kern_file.hpp>
 #include <IOKit/IOCatalogue.h>
 
 static const char *pathAGDP = "/System/Library/Extensions/AppleGraphicsControl.kext/Contents/PlugIns/"
@@ -52,9 +53,21 @@ void NootRXMain::init() {
     DBGLOG("NootRX", "isVenturaAndLater: %s", this->attributes.isVenturaAndLater() ? "yes" : "no");
     DBGLOG("NootRX", "isSonoma1404AndLater: %s", this->attributes.isSonoma1404AndLater() ? "yes" : "no");
 
-    SYSLOG("NootRX", "Module initialised");
+    SYSLOG("NootRX_fix", "PowerColor RX 6900 XT Red Devil Fix initialized");
 
     callback = this;
+
+    this->logLock = IOSimpleLockAlloc();
+    this->logBuffer = static_cast<char *>(IOMalloc(kMaxLogBufferSize));
+    if (this->logBuffer) {
+        bzero(this->logBuffer, kMaxLogBufferSize);
+        this->logBufferLen = 0;
+    }
+
+    this->debugDumpCall = thread_call_allocate(saveLogOnDisk, this);
+    if (this->debugDumpCall) {
+        thread_call_enter(this->debugDumpCall);
+    }
 
     lilu.onKextLoadForce(&kextAGDP);
 
@@ -71,6 +84,65 @@ void NootRXMain::init() {
             static_cast<NootRXMain *>(user)->processKext(patcher, id, slide, size);
         },
         this);
+}
+
+void NootRXMain::appendLog(const char *fmt, ...) {
+    char tmp[1024];
+    va_list va;
+    va_start(va, fmt);
+    vsnprintf(tmp, sizeof(tmp), fmt, va);
+    va_end(va);
+
+    IOLog("%s", tmp);
+    kprintf("%s", tmp);
+
+    if (logLock && logBuffer) {
+        size_t len = strnlen(tmp, sizeof(tmp));
+        if (len > 0) {
+            IOSimpleLockLock(logLock);
+            size_t left = kMaxLogBufferSize - logBufferLen - 1;
+            if (left > 0) {
+                if (len > left) len = left;
+                memcpy(logBuffer + logBufferLen, tmp, len);
+                logBufferLen += len;
+                logBuffer[logBufferLen] = '\0';
+            }
+            IOSimpleLockUnlock(logLock);
+        }
+    }
+}
+
+void NootRXMain::saveLogOnDisk(thread_call_param_t param0, thread_call_param_t) {
+    auto *main = static_cast<NootRXMain *>(param0);
+    if (!main) return;
+
+    // Sleep 20s to allow root filesystem to mount RW
+    IOSleep(20000);
+
+    if (main->logLock && main->logBuffer && main->logBufferLen > 0) {
+        auto *buf = static_cast<char *>(IOMalloc(main->logBufferLen + 1));
+        size_t len = 0;
+        if (buf) {
+            IOSimpleLockLock(main->logLock);
+            len = main->logBufferLen;
+            memcpy(buf, main->logBuffer, len);
+            buf[len] = '\0';
+            IOSimpleLockUnlock(main->logLock);
+
+            int ret = FileIO::writeBufferToFile("/var/log/NootRX_fix.log", buf, len);
+            if (ret == 0) {
+                IOLog("NootRX_fix: Log file written to /var/log/NootRX_fix.log (%zu bytes)\n", len);
+            } else {
+                IOLog("NootRX_fix: FileIO::writeBufferToFile to /var/log/NootRX_fix.log returned %d\n", ret);
+            }
+            IOFree(buf, len + 1);
+        }
+    }
+
+    if (main->debugDumpCall) {
+        thread_call_free(main->debugDumpCall);
+        main->debugDumpCall = nullptr;
+    }
 }
 
 void NootRXMain::processPatcher(KernelPatcher &patcher) {
@@ -164,6 +236,39 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
 
     DeviceInfo::deleter(devInfo);
 
+    auto checkFlag = [this](const char *name) -> bool {
+        auto prop = this->dGPU->getProperty(name);
+        if (!prop) {
+            char bootarg[32];
+            snprintf(bootarg, sizeof(bootarg), "-%s", name);
+            return checkKernelArgument(bootarg);
+        }
+        if (auto data = OSDynamicCast(OSData, prop)) {
+            if (data->getLength() > 0) {
+                return static_cast<const UInt8 *>(data->getBytesNoCopy())[0] != 0;
+            }
+            return false;
+        }
+        if (auto b = OSDynamicCast(OSBoolean, prop)) return b->isTrue();
+        if (auto num = OSDynamicCast(OSNumber, prop)) return num->unsigned32BitValue() != 0;
+        return false;
+    };
+
+    this->rdFlags.noGfxOff = checkFlag("rd-nogfxoff");
+    this->rdFlags.noUlv = checkFlag("rd-noulv");
+    this->rdFlags.noVActiveDram = checkFlag("rd-novactivedram");
+    this->rdFlags.noMpo = checkFlag("rd-nompo");
+    this->rdFlags.noStutter = checkFlag("rd-nostutter");
+    this->rdFlags.floorDpm = checkFlag("rd-floordpm");
+    this->rdFlags.noDcc = checkFlag("rd-nodcc");
+    this->rdFlags.diag = checkFlag("rd-diag") || ADDPR(debugEnabled) || checkKernelArgument("-NRXDebug");
+
+    this->appendLog("NootRX_fix: [INIT] Detected GPU 0x%04X:0x%02X\n", this->deviceId, this->pciRevision);
+    this->appendLog("NootRX_fix: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d diag=%d\n",
+                    this->rdFlags.noGfxOff, this->rdFlags.noUlv, this->rdFlags.noVActiveDram,
+                    this->rdFlags.noMpo, this->rdFlags.noStutter, this->rdFlags.floorDpm,
+                    this->rdFlags.noDcc, this->rdFlags.diag);
+
     this->dyldpatches.processPatcher(patcher);
 
     KernelPatcher::RouteRequest request {"__ZN11IOCatalogue10addDriversEP7OSArrayb", wrapAddDrivers,
@@ -171,7 +276,7 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
     PANIC_COND(!patcher.routeMultipleLong(KernelPatcher::KernelID, &request, 1), "NootRX",
         "Failed to route addDrivers");
 
-    if (ADDPR(debugEnabled)) {
+    if (this->rdFlags.diag || ADDPR(debugEnabled)) {
         this->dGPU->setProperty("PP_LogLevel", 0xFFFFFFFF, 32);
         this->dGPU->setProperty("PP_LogSource", 0xFFFFFFFF, 32);
         this->dGPU->setProperty("PP_LogDestination", 0xFFFFFFFF, 32);
@@ -250,6 +355,65 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
 
                 for (UInt32 injectedDriverIndex = 0; injectedDriverIndex < injectedDriverCount;
                      injectedDriverIndex += 1) {
+                    auto *driverObj = drivers->getObject(injectedDriverIndex);
+                    if (auto *drvDict = OSDynamicCast(OSDictionary, driverObj)) {
+                        auto *ioClass = OSDynamicCast(OSString, drvDict->getObject("IOClass"));
+                        if (ioClass && strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AmdRadeonControllerNavi21") == 0) {
+                            auto *atyProps = OSDynamicCast(OSDictionary, drvDict->getObject("aty_properties"));
+                            auto *atyConfig = OSDynamicCast(OSDictionary, drvDict->getObject("aty_config"));
+                            if (atyProps) {
+                                if (callback->rdFlags.noGfxOff) {
+                                    auto *v0 = OSNumber::withNumber(static_cast<UInt32>(0), 32);
+                                    atyProps->setObject("PP_GfxOffControl", v0);
+                                    v0->release();
+                                    callback->appendLog("NootRX_fix: [XML] aty_properties: PP_GfxOffControl=0\n");
+                                }
+                                if (callback->rdFlags.noUlv) {
+                                    auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
+                                    atyProps->setObject("PP_DisableULV", v1);
+                                    v1->release();
+                                    callback->appendLog("NootRX_fix: [XML] aty_properties: PP_DisableULV=1\n");
+                                }
+                                if (callback->rdFlags.noVActiveDram) {
+                                    auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
+                                    atyProps->setObject("DalDisableVActiveDramChange", v1);
+                                    v1->release();
+                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalDisableVActiveDramChange=1\n");
+                                }
+                                if (callback->rdFlags.noMpo) {
+                                    auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
+                                    atyProps->setObject("DalForceSingleDispPipeSplit", v1);
+                                    v1->release();
+                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceSingleDispPipeSplit=1\n");
+                                }
+                                if (callback->rdFlags.noStutter) {
+                                    auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
+                                    auto *v0 = OSNumber::withNumber(static_cast<UInt32>(0), 32);
+                                    atyProps->setObject("PP_DisableClockStretcher", v1);
+                                    atyProps->setObject("PP_Falcon_QuickTransition_Enable", v0);
+                                    atyProps->setObject("PP_DisableGFXCLKStutter", v1);
+                                    atyProps->setObject("PP_DisableFCLKStutter", v1);
+                                    atyProps->setObject("PP_DisableMCLKStutter", v1);
+                                    atyProps->setObject("PP_DisableDSCLKStutter", v1);
+                                    v1->release();
+                                    v0->release();
+                                    callback->appendLog("NootRX_fix: [XML] aty_properties: Stutter clocks disabled (safe baseline)\n");
+                                }
+                                if (callback->rdFlags.floorDpm) {
+                                    auto *v3 = OSNumber::withNumber(static_cast<UInt32>(3), 32);
+                                    atyProps->setObject("DalForceMinDpmLevel", v3);
+                                    v3->release();
+                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceMinDpmLevel=3 (DPM High floor)\n");
+                                }
+                            }
+                            if (atyConfig && (callback->rdFlags.noMpo || callback->rdFlags.noStutter)) {
+                                atyConfig->setObject("CFG_USE_STUTTER", kOSBooleanFalse);
+                                atyConfig->setObject("CFG_USE_FBC", kOSBooleanFalse);
+                                atyConfig->setObject("CFG_USE_CPT", kOSBooleanFalse);
+                                callback->appendLog("NootRX_fix: [XML] aty_config: CFG_USE_STUTTER=false, CFG_USE_FBC=false, CFG_USE_CPT=false\n");
+                            }
+                        }
+                    }
                     array->setObject(driverIndex, drivers->getObject(injectedDriverIndex));
                     driverIndex += 1;
                     driverCount += 1;
@@ -278,13 +442,15 @@ void NootRXMain::ensureRMMIO() {
 
 void NootRXMain::processKext(KernelPatcher &patcher, size_t id, mach_vm_address_t slide, size_t size) {
     if (kextAGDP.loadIndex == id) {
-        // Don't apply AGDP patch on MacPro7,1
-        if (strncmp("Mac-27AD2F918AE68F61", BaseDeviceInfo::get().boardIdentifier, 21) == 0) { return; }
-
+        // Apply AGDP patch on all boards including MacPro7,1 (required for commercial PC Navi GPUs)
         const LookupPatchPlus patch {&kextAGDP, kAGDPBoardIDKeyOriginal, kAGDPBoardIDKeyPatched, 1};
         PANIC_COND(!patch.apply(patcher, slide, size), "NootRX", "Failed to apply AGDP patch");
 
         DBGLOG("NootRX", "Processed Apple Graphics Device Policy");
+        if (callback) {
+            callback->appendLog("NootRX_fix: [AGDP] Applied board-id -> applehax patch for board %s\n",
+                BaseDeviceInfo::get().boardIdentifier);
+        }
     } else if (this->x6000fb.processKext(patcher, id, slide, size)) {
         DBGLOG("NootRX", "Processed Framebuffer");
     } else if (this->hwlibs.processKext(patcher, id, slide, size)) {
