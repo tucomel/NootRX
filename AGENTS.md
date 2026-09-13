@@ -152,6 +152,7 @@ Resultados da baseline:
 | `experiment-floordpm4-failed` | `c147899` | Rejeitado conclusivamente: memória travou em 1000 MHz (1990 MHz efetivos), mas fragmentos permaneceram iguais; colisão de stamp entre screencapture e Heaven (timeout stamp 5643 / Restart Channel 4 ComputeUQ1). Prova que UCLK não é a causa raiz. |
 | `v1.0.15-corefloor500-test` | `8cd9cfb` | Variável única: PP_GfxclkDeepSleepDisable=1 e PP_SclkDeepSleepDisable=1 (tentativa de piso 500 MHz) com memória livre (sem DalForceMinDpmLevel). |
 | `experiment-corefloor500-failed` | `8cd9cfb` | Rejeitado conclusivamente: chaves PP_*DeepSleepDisable inexistentes no driver da Apple; remoção de DalForceMinDpmLevel derrubou Core Clock para 56-62 MHz em idle, piorando fragmentos, causando timeout DisplayPipe stamp 57, 2 resets de driver (GFX e ComputeUQ3) e abortando gravação de tela. Heaven eliminou 100% dos fragmentos enquanto rodava, voltando ao fechar. |
+| `v1.0.16-core500-smu-test` | `f46e153` | Variável única: SMU_DisallowedFeatures com Bit 12 (DS_GFXCLK) e Bit 34 (GFX_DCS) desativados (0x400001004) para travar piso do Core Clock em 500 MHz via firmware da SMU, preservando DalForceMinDpmLevel=3 intacto. |
 
 ## Experimentos rejeitados — não repetir nem combinar
 

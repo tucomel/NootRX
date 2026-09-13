@@ -261,13 +261,14 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
     this->rdFlags.noStutter = checkFlag("rd-nostutter");
     this->rdFlags.floorDpm = checkFlag("rd-floordpm");
     this->rdFlags.noDcc = checkFlag("rd-nodcc");
+    this->rdFlags.coreFloor = checkFlag("rd-corefloor");
     this->rdFlags.diag = checkFlag("rd-diag") || ADDPR(debugEnabled) || checkKernelArgument("-NRXDebug");
 
     this->appendLog("NootRX_fix: [INIT] Detected GPU 0x%04X:0x%02X\n", this->deviceId, this->pciRevision);
-    this->appendLog("NootRX_fix: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d diag=%d\n",
+    this->appendLog("NootRX_fix: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d corefloor=%d diag=%d\n",
                     this->rdFlags.noGfxOff, this->rdFlags.noUlv, this->rdFlags.noVActiveDram,
                     this->rdFlags.noMpo, this->rdFlags.noStutter, this->rdFlags.floorDpm,
-                    this->rdFlags.noDcc, this->rdFlags.diag);
+                    this->rdFlags.noDcc, this->rdFlags.coreFloor, this->rdFlags.diag);
 
     this->dyldpatches.processPatcher(patcher);
 
@@ -411,6 +412,23 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                     atyProps->setObject("DalForceMinDpmLevel", v3);
                                     v3->release();
                                     callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceMinDpmLevel=3 (DPM High floor)\n");
+                                }
+                                if (callback->rdFlags.coreFloor) {
+                                    // Feature bit 12: FEATURE_DS_GFXCLK_BIT (Deep Sleep of GFXCLK / Core Clock)
+                                    // Feature bit 34: FEATURE_GFX_DCS_BIT (Duty Cycle Scaling)
+                                    constexpr UInt64 featureDsGfxClk = (1ULL << 12);
+                                    constexpr UInt64 featureGfxDcs   = (1ULL << 34);
+                                    UInt64 disallowedFeatures = 0;
+                                    if (auto *current = OSDynamicCast(OSNumber, atyProps->getObject("SMU_DisallowedFeatures"))) {
+                                        disallowedFeatures = current->unsigned64BitValue();
+                                    }
+                                    const auto originalFeatures = disallowedFeatures;
+                                    disallowedFeatures |= (featureDsGfxClk | featureGfxDcs);
+                                    auto *value = OSNumber::withNumber(disallowedFeatures, 64);
+                                    atyProps->setObject("SMU_DisallowedFeatures", value);
+                                    value->release();
+                                    callback->appendLog("NootRX_fix: [XML] aty_properties: SMU_DisallowedFeatures=0x%llX (was 0x%llX; DS_GFXCLK bit 12 + GFX_DCS bit 34 disabled -> 500 MHz floor)\n",
+                                                        disallowedFeatures, originalFeatures);
                                 }
                             }
                             if (atyConfig && (callback->rdFlags.noMpo || callback->rdFlags.noStutter)) {
