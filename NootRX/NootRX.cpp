@@ -415,15 +415,11 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                 }
                                 if (callback->rdFlags.coreFloor) {
                                     // Feature bit 12: FEATURE_DS_GFXCLK_BIT (Deep Sleep of GFXCLK / Core Clock -> 500 MHz floor)
-                                    // Feature bit 18: FEATURE_GFX_ULV_BIT (Ultra Low Voltage -> prevents voltage < 0.800V)
-                                    // Feature bit 20: FEATURE_GFXOFF_BIT (GFX core power off)
                                     // Feature bit 34: FEATURE_GFX_DCS_BIT (Duty Cycle Scaling -> as Apple Belknap)
                                     // Feature bit 39: FEATURE_TEMP_DEPENDENT_VMIN_BIT (Temp-dependent Vmin drop -> as Apple Belknap)
                                     // Feature bit 40: FEATURE_MMHUB_PG_BIT (Memory Management Hub Power Gating -> as Apple Belknap)
                                     // Feature bit 41: FEATURE_ATHUB_PG_BIT (Address Translation Hub Power Gating -> as Apple Belknap)
                                     constexpr UInt64 featureDsGfxClk    = (1ULL << 12);
-                                    constexpr UInt64 featureGfxUlv      = (1ULL << 18);
-                                    constexpr UInt64 featureGfxOff      = (1ULL << 20);
                                     constexpr UInt64 featureGfxDcs      = (1ULL << 34);
                                     constexpr UInt64 featureTempDepVmin = (1ULL << 39);
                                     constexpr UInt64 featureMmhubPg     = (1ULL << 40);
@@ -433,12 +429,12 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                         disallowedFeatures = current->unsigned64BitValue();
                                     }
                                     const auto originalFeatures = disallowedFeatures;
-                                    disallowedFeatures |= (featureDsGfxClk | featureGfxUlv | featureGfxOff | featureGfxDcs |
+                                    disallowedFeatures |= (featureDsGfxClk | featureGfxDcs |
                                                            featureTempDepVmin | featureMmhubPg | featureAthubPg);
                                     auto *value = OSNumber::withNumber(disallowedFeatures, 64);
                                     atyProps->setObject("SMU_DisallowedFeatures", value);
                                     value->release();
-                                    callback->appendLog("Nootrx_rx6900xt_rd: [XML] aty_properties: SMU_DisallowedFeatures=0x%llX (was 0x%llX; 500MHz core + 0.800V ULV/Vmin + MMHUB PG disabled)\n",
+                                    callback->appendLog("Nootrx_rx6900xt_rd: [XML] aty_properties: SMU_DisallowedFeatures=0x%llX (was 0x%llX; 500MHz core floor + MMHUB PG disabled)\n",
                                                         disallowedFeatures, originalFeatures);
                                 }
                             }
