@@ -1,0 +1,26 @@
+2026-09-13 20:27:02.899 system_profiler[60885:128169] Device PreExisted [000000010000072e] AMD Radeon RX 6900 XT
+Graphics/Displays:
+
+    AMD Radeon RX 6900 XT:
+
+      Chipset Model: AMD Radeon RX 6900 XT
+      Type: GPU
+      Bus: PCIe
+      Slot: Slot-1
+      PCIe Lane Width: x16
+      VRAM (Total): 16 GB
+      Vendor: AMD (0x1002)
+      Device ID: 0x73bf
+      Revision ID: 0x00c0
+      ROM Revision: 113-D41201-XT
+      Metal Support: Metal 3
+      Displays:
+        LG FHD:
+          Resolution: 1920 x 1080 (1080p FHD - Full High Definition)
+          UI Looks like: 1920 x 1080 @ 100.00Hz
+          Framebuffer Depth: 30-Bit Color (ARGB2101010)
+          Main Display: Yes
+          Mirror: Off
+          Online: Yes
+          Rotation: Supported
+

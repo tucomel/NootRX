@@ -1,0 +1,68 @@
+panic(cpu 0 caller 0xffffff7f9f595ca6): "GDDR6 Long Training Failed !!!
+" @AmdRadeonController.cpp:2022
+Panicked task 0xffffffa3f8472478: 182 threads: pid 0: kernel_task
+Backtrace (CPU 0), panicked thread: 0xffffff9595938b30, Frame : Return Address
+0xfffffff421167900 : 0xffffff801266cc7d mach_kernel : _handle_debugger_trap + 0x4ad
+0xfffffff421167950 : 0xffffff80127c1394 mach_kernel : _kdp_i386_trap + 0x114
+0xfffffff421167990 : 0xffffff80127b0ea7 mach_kernel : _kernel_trap + 0x3b7
+0xfffffff4211679e0 : 0xffffff801260d971 mach_kernel : _return_from_trap + 0xc1
+0xfffffff421167a00 : 0xffffff801266cf5d mach_kernel : _DebuggerTrapWithState + 0x5d
+0xfffffff421167af0 : 0xffffff801266c607 mach_kernel : _panic_trap_to_debugger + 0x1a7
+0xfffffff421167b50 : 0xffffff8012ddaf8b mach_kernel : _panic + 0x84
+0xfffffff421167c40 : 0xffffff7f9f595ca6 com.apple.kext.AMDRadeonX6000Framebuffer : __ZN34AMDRadeonX6000_AmdRadeonController10doGPUPanicEPKcz + 0x1c2
+0xfffffff421167d50 : 0xffffff7f9f54b820 com.apple.kext.AMDRadeonX6000Framebuffer : __ZN39AMDRadeonX6000_AmdRadeonControllerNavi219doGddr6LongTrainingEv + 0x7c
+0xfffffff421167d70 : 0xffffff7f9f54b6b1 com.apple.kext.AMDRadeonX6000Framebuffer : __ZN39AMDRadeonX6000_AmdRadeonControllerNavi25startEP9IOService + 0x93
+0xfffffff421167da0 : 0xffffff8012ce7901 mach_kernel : __ZN9IOService14startCandidateEPS_ + 0xd1
+0xfffffff421167e00 : 0xffffff8012ce747a mach_kernel : __ZN9IOService15probeCandidatesEP12OSOrderedSet + 0xdba
+0xfffffff421167ec0 : 0xffffff8012ce652f mach_kernel : __ZN9IOService14doServiceMatchEj + 0x3af
+0xfffffff421167f20 : 0xffffff8012ce96ba mach_kernel : __ZN15_IOConfigThread4mainEPvi + 0x15a
+0xfffffff421167fa0 : 0xffffff801260d19e mach_kernel : _call_continuation + 0x2e
+      Kernel Extensions in backtrace:
+         com.apple.kext.AMDRadeonX6000Framebuffer(4.1.4)[E116BA99-722F-3D23-BC50-43C9564FADB7]@0xffffff7f9f547000->0xffffff7f9f7d0fff
+            dependency: com.apple.AppleGraphicsDeviceControl(7.1.19)[87B91A0F-9829-39C3-8DBF-4581A2EE681A]@0xffffff7fa7304000->0xffffff7fa7307fff
+            dependency: com.apple.iokit.IOACPIFamily(1.4)[D342E754-A422-3F44-BFFB-DEE93F6723BC]@0xffffff8014c46000->0xffffff8014c47fff
+            dependency: com.apple.iokit.IOGraphicsFamily(597)[718E01CF-8B05-3042-88F4-DE3441395D00]@0xffffff7fa83c1000->0xffffff7fa83effff
+            dependency: com.apple.iokit.IOPCIFamily(2.9)[1B22CD14-C8DA-3EBD-BFB2-4C394DB040A6]@0xffffff80150b6000->0xffffff80150e7fff
+
+Process name corresponding to current thread (0xffffff9595938b30): kernel_task
+Boot args: -v debug=0x100 keepsyms=1 npci=0x2000 agdpmod=pikera 
+
+Mac OS version:
+22H730
+
+Kernel version:
+Darwin Kernel Version 22.6.0: Tue Jul 15 08:22:28 PDT 2025; root:xnu-8796.141.3.713.2~2/RELEASE_X86_64
+Kernel UUID: 525F3E82-890C-3426-88D3-E80CF8E681EC
+roots installed: 0
+KernelCache slide: 0x0000000012200000
+KernelCache base:  0xffffff8012400000
+Kernel slide:      0x00000000122dc000
+Kernel text base:  0xffffff80124dc000
+__HIB  text base: 0xffffff8012300000
+System model name: MacPro7,1 (Mac-27AD2F918AE68F61)
+System shutdown begun: NO
+Panic diags file available: YES (0x0)
+Hibernation exit count: 0
+
+System uptime in nanoseconds: 26985873302
+Last Sleep:           absolute           base_tsc          base_nano
+  Uptime  : 0x000000064a18f70c
+  Sleep   : 0x0000000000000000 0x0000000000000000 0x0000000000000000
+  Wake    : 0x0000000000000000 0x00000016ee3181bc 0x0000000000000000
+Compressor Info: 0% of compressed pages limit (OK) and 0% of segments limit (OK) with 0 swapfiles and OK swap space
+Zone info:
+  Zone map: 0xffffff8a5e4a2000 - 0xffffffaa5e4a2000
+  . PGZ   : 0xffffff8a5e4a2000 - 0xffffff8a604a3000
+  . VM    : 0xffffff8a604a3000 - 0xffffff8f2cca2000
+  . RO    : 0xffffff8f2cca2000 - 0xffffff90c64a2000
+  . GEN0  : 0xffffff90c64a2000 - 0xffffff9592ca2000
+  . GEN1  : 0xffffff9592ca2000 - 0xffffff9a5f4a2000
+  . GEN2  : 0xffffff9a5f4a2000 - 0xffffff9f2bca2000
+  . GEN3  : 0xffffff9f2bca2000 - 0xffffffa3f84a2000
+  . DATA  : 0xffffffa3f84a2000 - 0xffffffaa5e4a2000
+  Metadata: 0xffffff803c2b2000 - 0xffffff805c2b2000
+  Bitmaps : 0xffffff805c2b2000 - 0xffffff805f2b2000
+  Extra   : 0 - 0
+
+
+

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>DeviceProperties</key>
+	<dict>
+		<key>Add</key>
+		<dict>
+			<!-- Substitua pelo caminho ACPI/PCI exato da sua GPU (ex: via gfxutil) -->
+			<key>PciRoot(0x0)/Pci(0x3,0x0)/Pci(0x0,0x0)/Pci(0x0,0x0)/Pci(0x0,0x0)</key>
+			<dict>
+				<!-- rd-corefloor: 01 ativa a mascara SMU 0x38400101004 (500MHz floor, GFXOFF proibido, MMHUB acordado, Vmin protegido) -->
+				<key>rd-corefloor</key>
+				<data>MDE=</data>
+				<!-- rd-diag: 01 ativa o log detalhado no boot -->
+				<key>rd-diag</key>
+				<data>AQ==</data>
+				<!-- rd-floordpm: 00 desativa DalForceMinDpmLevel=3, permitindo reducao dinamica de clock -->
+				<key>rd-floordpm</key>
+				<data>AA==</data>
+				<!-- rd-nodcc: 01 desativa GPUDCCDisplayable para eliminar corrupcao de scanout -->
+				<key>rd-nodcc</key>
+				<data>AQ==</data>
+				<!-- rd-nogfxoff: 01 forca PP_GfxOffControl=0 (GFX nunca desliga) -->
+				<key>rd-nogfxoff</key>
+				<data>AQ==</data>
+				<!-- rd-nompo: 01 forca DalForceSingleDispPipeSplit=1 para estabilidade de MPO -->
+				<key>rd-nompo</key>
+				<data>AQ==</data>
+				<!-- rd-nostutter: 01 desativa stutter clocks -->
+				<key>rd-nostutter</key>
+				<data>AQ==</data>
+				<!-- rd-noulv: 01 forca PP_DisableULV=1 no driver -->
+				<key>rd-noulv</key>
+				<data>AQ==</data>
+				<!-- rd-novactivedram: 00 permite DalDramClockChangeOneDisplayVActive=1 para reducao de clock da GDDR6 -->
+				<key>rd-novactivedram</key>
+				<data>AA==</data>
+			</dict>
+		</dict>
+	</dict>
+</dict>
+</plist>

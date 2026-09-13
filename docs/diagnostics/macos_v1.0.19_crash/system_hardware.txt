@@ -1,0 +1,3 @@
+machdep.cpu.brand_string: Intel(R) Core(TM) i7-6800K CPU @ 3.40GHz
+hw.model: MacPro7,1
+hw.ncpu: 12

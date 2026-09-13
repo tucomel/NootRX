@@ -1,0 +1,780 @@
++-o AMDRadeonX6000_AMDNavi21GraphicsAccelerator  <class AMDRadeonX6000_AMDNavi21GraphicsAccelerator, id 0x100000775, registered, matched, active, busy 0 (5242 ms), retain 66>
+  | {
+  |   "AccelCaps" = 15
+  |   "IODVDBundleName" = "AMDRadeonVADriver2"
+  |   "IOGVAHEVCEncode" = "1"
+  |   "ATY,intrev" = 41
+  |   "AccelNativeDMARowByteAlignment" = 256
+  |   "InternalStatisticsAccm" = {}
+  |   "MetalStatisticsName" = "GFX10Statistics"
+  |   "GPURawCounterBundleName" = "AMDRawCounterPlugin"
+  |   "GPUDCCDisplayable" = No
+  |   "IOGeneralInterest" = "IOCommand is not serializable"
+  |   "InternalStatistics" = {}
+  |   "MetalPluginClassName" = "AMDMTLGFX10Device"
+  |   "GPURawCounterPluginClassName" = "AMDRawCounterSourceGroup"
+  |   "GpuDebugPolicy" = 0
+  |   "GPUConfigurationVariable" = {"NumROP"=16,"MemBusWidth"=256,"NumCUPerSH"=10,"NumSH"=2,"SysClkFreq"=266000,"NumSE"=4,"MemClkFreq"=100000}
+  |   "AGCInfo" = {"fBusyCount"=0,"poweredOffByAGC"=No,"fSubmissionsSinceLastCheck"=85905,"fLastSubmissionPID"=153}
+  |   "dpm" = 1
+  |   "MetalPluginName" = "AMDRadeonX6000MTLDriver"
+  |   "PerformanceStatisticsAccum" = {"ioSurfacePageOutBytes"=0,"HWChannel SDMA0 | Commands Completed"=0,"ioSurfacePageInBytes"=0,"HWChannel SDMA2 | Commands Submitted"=0,"gartMapOutBytesPerSample"=0,"HWChannel SDMA1 | Commands Completed"=0,"orphanedNonReusableSysMemoryCount"=0,"orphanedReusableSysMemoryCount"=0,"HWChannel VCN1Dec | Commands Submitted"=0,"HWChannel VCN1EncLLQ | Commands Completed"=0,"swapComplete2DWaitTime"=0,"finishCLWaitTime"=0,"orphanedReusableVidMemoryBytes"=567611392,"gartFreeBytes"=6363529216,"agprefTextureCreationBytes"=0,"textureReadOutBytes"=0,"HWChannel VCN0Enc | Commands Submitted"=0,"clientSharedAllocatedBytes"=536576,"textureVolunteerUnloadBytes"=0,"agprefTextureCreationCount"=0,"GPU Activity(%)"=5,"HWChannel KIQ | Commands Completed"=0,"HWChannel SDMA1_PAGE | Commands Submitted"=0,"HWChannel SDMA0 | Commands Submitted"=0,"surfaceTextureCreationCount"=0,"context2DCount"=4,"Fan Speed(%)"=0,"HWChannel SDMA1 | Commands Submitted"=0,"stdTexturePageInBytes"=0,"HWChannel SDMA2_PAGE | Commands Completed"=0,"Device Utilization %"=23,"orphanedNonReusableSysMemoryBytes"=0,"surfaceBufferReadOutBytes"=0,"swapCompleteGLWaitTime"=0,"swapCompleteVideoWaitTime"=0,"HWChannel SDMA0_PAGE | Commands Submitted"=2,"surfaceCopyOutWaitTime"=0,"HWChannel GFX | Commands Submitted"=1,"dataBufferCount"=0,"swapBytesPerSample"=0,"HWChannel HIQ | Commands Completed"=0,"HWChannel VCN0EncLLQ | Commands Submitted"=0,"HWChannel VCN1Dec | Commands Completed"=0,"bufferSwapCount"=0,"finishGLWaitTime"=0,"freeDataBufferWaitTime"=0,"surfaceCopyInWaitTime"=0,"stdTextureCreationCount"=2,"dataBytesPerSample"=0,"freeToAllocGPUAddressWaitTime"=0,"oolTexturePageInBytes"=0,"contextGLCount"=1,"oolTextureCreationCount"=0,"inUseSysMemoryBytes"=78921728,"HWChannel VCN0Enc | Commands Completed"=0,"hardwareWaitTime"=0,"vramFreeBytes"=16339275776,"HWChannel SDMA3_PAGE | Commands Submitted"=0,"stdTextureCreationBytes"=32768,"contextVideoCount"=1,"inUseVidMemoryBytes"=256204800,"recoveryCount"=0,"oolTextureCreationBytes"=0,"vramEvictionWaitTime"=0,"contextCLCount"=0,"hardwareSubmitWaitTime"=0,"HWChannel HIQ | Commands Submitted"=0,"surfaceSetShapeIdleWaitTime"=0,"orphanedReusableVidMemoryCount"=390,"HWChannel SDMA3 | Commands Completed"=0,"volatileSurfaceCount"=0,"orphanedReusableSysMemoryBytes"=0,"iosurfaceTextureCreationBytes"=0,"orphanedNonReusableVidMemoryCount"=0,"gartSizeBytes"=6442450944,"HWChannel VCN0Dec | Commands Submitted"=0,"surfaceBufferPageOutBytes"=0,"HWChannel SDMA1_PAGE | Commands Completed"=0,"finishAll2DWaitTime"=0,"HWChannel VCN1EncLLQ | Commands Submitted"=0,"Core Clock(MHz)"=643,"HWChannel KIQ | Commands Submitted"=0,"HWChannel VCN0Dec | Commands Completed"=0,"texturePageOutBytes"=0,"Temperature(C)"=54,"surfaceWriteLockIdleWaitTime"=0,"clientGLWaitTime"=0,"gartCacheBytes"=33554432,"gartUsedBytes"=78921728,"surfaceBufferTextureCreationCount"=0,"surfaceReadLockIdleWaitTime"=0,"Total Power(W)"=39,"iosurfaceTextureCreationCount"=0,"HWChannel SDMA3 | Commands Submitted"=0,"HWChannel SDMA2 | Commands Completed"=0,"HWChannel VCN0EncLLQ | Commands Completed"=0,"ioSurfaceReadOutBytes"=0,"bufferFlipCount"=0,"surfaceCount"=20,"orphanedReusableSysMemoryHitRate"=0,"agpTextureCreationCount"=0,"freeSurfaceBackingWaitTime"=0,"finishVideoWaitTime"=0,"orphanedNonReusableVidMemoryBytes"=0,"orphanedReusableVidMemoryHitRate"=77,"HWChannel SDMA2_PAGE | Commands Submitted"=0,"gartMapInBytesPerSample"=0,"agpTextureCreationBytes"=0,"HWChannel GFX | Commands Completed"=0,"HWChannel VCN1Enc | Commands Submitted"=0,"finish2DWaitTime"=0,"Memory Clock(MHz)"=1988,"Fan Speed(RPM)"=0,"HWChannel SDMA3_PAGE | Commands Completed"=0,"surfaceBufferPageInBytes"=0,"freeSurfaceSwapBufferWaitTime"=0,"textureCount"=1126,"HWChannel VCN1Enc | Commands Completed"=0,"HWChannel SDMA0_PAGE | Commands Completed"=0}
+  |   "PerformanceStatistics" = {"ioSurfacePageOutBytes"=0,"HWChannel SDMA0 | Commands Completed"=1,"ioSurfacePageInBytes"=0,"HWChannel SDMA2 | Commands Submitted"=0,"gartMapOutBytesPerSample"=0,"HWChannel SDMA1 | Commands Completed"=0,"orphanedNonReusableSysMemoryCount"=0,"orphanedReusableSysMemoryCount"=0,"HWChannel VCN1Dec | Commands Submitted"=0,"HWChannel VCN1EncLLQ | Commands Completed"=0,"swapComplete2DWaitTime"=0,"finishCLWaitTime"=0,"orphanedReusableVidMemoryBytes"=567644160,"gartFreeBytes"=6363529216,"agprefTextureCreationBytes"=0,"textureReadOutBytes"=0,"HWChannel VCN0Enc | Commands Submitted"=0,"clientSharedAllocatedBytes"=536576,"textureVolunteerUnloadBytes"=0,"agprefTextureCreationCount"=0,"GPU Activity(%)"=4,"HWChannel KIQ | Commands Completed"=0,"HWChannel SDMA1_PAGE | Commands Submitted"=1,"HWChannel SDMA0 | Commands Submitted"=1,"surfaceTextureCreationCount"=0,"context2DCount"=4,"Fan Speed(%)"=0,"HWChannel SDMA1 | Commands Submitted"=0,"stdTexturePageInBytes"=1409024,"HWChannel SDMA2_PAGE | Commands Completed"=0,"Device Utilization %"=1,"orphanedNonReusableSysMemoryBytes"=0,"surfaceBufferReadOutBytes"=0,"swapCompleteGLWaitTime"=0,"swapCompleteVideoWaitTime"=0,"HWChannel SDMA0_PAGE | Commands Submitted"=10,"surfaceCopyOutWaitTime"=0,"HWChannel GFX | Commands Submitted"=7,"dataBufferCount"=0,"swapBytesPerSample"=0,"HWChannel HIQ | Commands Completed"=0,"HWChannel VCN0EncLLQ | Commands Submitted"=0,"HWChannel VCN1Dec | Commands Completed"=0,"bufferSwapCount"=0,"finishGLWaitTime"=0,"freeDataBufferWaitTime"=0,"surfaceCopyInWaitTime"=0,"stdTextureCreationCount"=0,"dataBytesPerSample"=0,"freeToAllocGPUAddressWaitTime"=0,"oolTexturePageInBytes"=2949120,"contextGLCount"=1,"oolTextureCreationCount"=1,"inUseSysMemoryBytes"=78921728,"HWChannel VCN0Enc | Commands Completed"=0,"hardwareWaitTime"=1541211,"vramFreeBytes"=16339275776,"HWChannel SDMA3_PAGE | Commands Submitted"=0,"stdTextureCreationBytes"=0,"contextVideoCount"=1,"inUseVidMemoryBytes"=256172032,"recoveryCount"=0,"oolTextureCreationBytes"=983040,"vramEvictionWaitTime"=0,"contextCLCount"=0,"hardwareSubmitWaitTime"=0,"HWChannel HIQ | Commands Submitted"=0,"surfaceSetShapeIdleWaitTime"=0,"orphanedReusableVidMemoryCount"=392,"HWChannel SDMA3 | Commands Completed"=0,"volatileSurfaceCount"=0,"orphanedReusableSysMemoryBytes"=0,"iosurfaceTextureCreationBytes"=0,"orphanedNonReusableVidMemoryCount"=0,"gartSizeBytes"=6442450944,"HWChannel VCN0Dec | Commands Submitted"=1,"surfaceBufferPageOutBytes"=0,"HWChannel SDMA1_PAGE | Commands Completed"=1,"finishAll2DWaitTime"=0,"HWChannel VCN1EncLLQ | Commands Submitted"=0,"Core Clock(MHz)"=640,"HWChannel KIQ | Commands Submitted"=0,"HWChannel VCN0Dec | Commands Completed"=1,"texturePageOutBytes"=0,"Temperature(C)"=55,"surfaceWriteLockIdleWaitTime"=0,"clientGLWaitTime"=1541211,"gartCacheBytes"=33554432,"gartUsedBytes"=78921728,"surfaceBufferTextureCreationCount"=0,"surfaceReadLockIdleWaitTime"=0,"Total Power(W)"=39,"iosurfaceTextureCreationCount"=2,"HWChannel SDMA3 | Commands Submitted"=0,"HWChannel SDMA2 | Commands Completed"=0,"HWChannel VCN0EncLLQ | Commands Completed"=0,"ioSurfaceReadOutBytes"=0,"bufferFlipCount"=0,"surfaceCount"=20,"orphanedReusableSysMemoryHitRate"=0,"agpTextureCreationCount"=0,"freeSurfaceBackingWaitTime"=0,"finishVideoWaitTime"=0,"orphanedNonReusableVidMemoryBytes"=0,"orphanedReusableVidMemoryHitRate"=77,"HWChannel SDMA2_PAGE | Commands Submitted"=0,"gartMapInBytesPerSample"=0,"agpTextureCreationBytes"=0,"HWChannel GFX | Commands Completed"=7,"HWChannel VCN1Enc | Commands Submitted"=0,"finish2DWaitTime"=0,"Memory Clock(MHz)"=1990,"Fan Speed(RPM)"=0,"HWChannel SDMA3_PAGE | Commands Completed"=0,"surfaceBufferPageInBytes"=0,"freeSurfaceSwapBufferWaitTime"=0,"textureCount"=1124,"HWChannel VCN1Enc | Commands Completed"=0,"HWChannel SDMA0_PAGE | Commands Completed"=10}
+  |   "IOGLBundleName" = "AMDRadeonX6000GLDriver"
+  |   "IOPropertyMatch" = {"LoadAccelerator"=Yes}
+  |   "IOKitDebug" = 0
+  |   "IOSourceVersion" = "0.0.0.0.0"
+  |   "GPUDebugNullClientMask" = 0
+  |   "IOGVAHEVCDecodeCapabilities" = {"VTPerProfileDetails"={"1"={"VTMaxDecodeLevel"=153},"2"={"VTMaxDecodeLevel"=153},"3"={"VTMaxDecodeLevel"=153}},"VTSupportedProfileArray"=(1,2,3)}
+  |   "IOGVAH264EncodeCapabilities" = {"VTRating"=350,"VTQualityRating"=50}
+  |   "ATY,cbits" = 524288
+  |   "IOOCDBundleName" = "AMDRadeonX6000GLDriver"
+  |   "cail_properties" = {}
+  |   "CFBundleIdentifier" = "com.apple.kext.AMDRadeonX6000"
+  |   "ResNoAllocPaging" = 0
+  |   "IOVARendererID" = 16908292
+  |   "IOProviderClass" = "IOPCIDevice"
+  |   "IOAccelRevision" = 2
+  |   "IOGVACodec" = "AMDVCN2"
+  |   "SWIP_properties" = {"EnableSwVCNFWLoading"=0,"EnableVCNFWLog"=0,"EnableGDDR6MemoryTraining"=0,"EnableSwVCNUnifiedQueue"=No}
+  |   "IOGVAHEVCDecode" = "1"
+  |   "IOClass" = "AMDRadeonX6000_AMDNavi21GraphicsAccelerator"
+  |   "CFBundleIdentifierKernel" = "com.apple.kext.AMDRadeonX6000"
+  |   "IOReportLegendPublic" = Yes
+  |   "IOCFPlugInTypes" = {"ACCF0000-0000-0000-0000-000a2789904e"="IOAccelerator2D.plugin"}
+  |   "IOPCITunnelCompatible" = Yes
+  |   "IOPCIMatch" = "0x73A21002 0x73A31002 0x73A51002 0x73AB1002 0x73AF1002 0x73BF1002"
+  |   "IOMatchCategory" = "IOAccelerator"
+  |   "IOReportLegend" = ({"IOReportChannels"=((4000,6442450945,"Overall GPU Busy"),(4001,6442450945,"Overall GPU total time"),(4002,6442450945,"3d Busy"),(4003,6442450945,"3d total time"),(4010,6442450945,"DMA Busy"),(4011,6442450945,"DMA total time"),(4006,6442450945,"Video Busy"),(4007,6442450945,"Video total time"),(4008,6442450945,"Compute Busy"),(4009,6442450945,"Compute total time"),(4705492297355379200,6442450945,"PM4 Busy"),(4705492297355383808,6442450945,"PM4 total time"),(0,6442450945,"Command Buffer Bytes"),(1,6442450945,"GL Command Buffer Bytes"),(2,6442450945,"CL Command Buffer Bytes"),(3,6442450945,"2D Command Buffer Bytes"),(4,6442450945,"Video Command Buffer Bytes"),(5,6442450945,"Out-Of-Line Texture Creation Bytes"),(6,6442450945,"Shared System Memory Texture Creation Bytes"),(7,6442450945,"Private Video Memory Texture Creation Bytes"),(8,6442450945,"Private System Memory Texture Creation Bytes"),(9,6442450945,"IOSurface Backed Texture Creation Bytes"),(10,6442450945,"Out-Of-Line Texture Creation Count"),(11,6442450945,"Private Video Memory Texture Creation Count"),(12,6442450945,"Private System Memory Texture Creation Count"),(13,6442450945,"Shared System Memory Texture Creation Count"),(14,6442450945,"IOAccelSurfaceRef Texture Creation Count"),(15,6442450945,"IOAccelSurfaceBufferRef Texture Creation Count"),(16,6442450945,"IOSurface Backed Texture Creation Count"),(17,6442450945,"Texture Count"),(20,6442450945,"Bytes mapped into the GPU"),(21,6442450945,"Bytes unmapped from the GPU"),(82,6442450945,"IOAccelClientShared allocated bytes"),(22,6442450945,"Private textures bytes paged on"),(23,6442450945,"Out of line texture bytes paged on"),(24,6442450945,"IOAccelSurface bytes paged on"),(25,6442450945,"IOSurface bytes paged on"),(26,6442450945,"IOSurface bytes evicted"),(27,6442450945,"IOAccelSurface bytes evicted"),(28,6442450945,"Texture bytes evicted"),(29,6442450945,"IOSurface bytes paged off"),(30,6442450945,"IOAccelSurface bytes paged off"),(31,6442450945,"Texture bytes paged off"),(32,6442450945,"Texture bytes voluntarily paged off"),(33,6442450945,"IOAccelSurface count"),(34,6442450945,"Volatile IOAccelSurface count"),(35,6442450945,"2D context count"),(36,6442450945,"Video context count"),(37,6442450945,"OpenGL context count"),(38,6442450945,"OpenCL context count"),(39,6442450945,"Buffer swap count"),(40,6442450945,"Buffer flip count"),(41,6442450945,"Databuffer count"),(42,6442450945,"VRAM eviction wait time"),(43,6442450945,"CPU wait on GPU"),(44,6442450945,"CPU wait to submit to GPU"),(45,6442450945,"GL Client wait on GPU"),(46,6442450945,"CL Client wait on GPU"),(47,6442450945,"CPU Wait to evict resource"),(49,6442450945,"CPU wait for free databuffer"),(53,6442450945,"GL Client wait for swap complete"),(55,6442450945,"CPU Wait to copy in surface"),(56,6442450945,"CPU Wait to copy out surface"),(59,6442450945,"CPU Wait for surface idle"),(60,6442450945,"CPU Wait for resource read"),(61,6442450945,"CPU Wait for resource write"),(62,6442450945,"CPU Wait for all 2D finish"),(63,6442450945,"CPU Wait for 2D finish"),(64,6442450945,"CPU Wait for video finish"),(65,6442450945,"CPU Wait for GL finish"),(66,6442450945,"CPU Wait for CL finish"),(106,6442450945,"In use system memory"),(105,6442450945,"In use video memory"),(103,6442450945,"Command Queue Count"),(104,6442450945,"GPU Restart Count")),"IOReportGroupName"="Internal Statistics","IOReportChannelInfo"={"IOReportChannelUnit"=0}})
+  |   "IOProbeScore" = 0
+  |   "IOGVAHEVCEncodeCapabilities" = {"VTPerProfileDetails"={"1"={"VTMaxEncodeLevel"=153}},"VTQualityRating"=50,"VTRating"=350,"VTSupportedProfileArray"=(1)}
+  |   "IOAccelDisplayPipeCapabilities" = {"DisplayPipeSupported"=Yes,"TransactionsSupported"=Yes}
+  |   "SurfaceList" = ()
+  | }
+  | 
+  +-o AMDRadeonX6000_AMDAccel2DContext  <class AMDRadeonX6000_AMDAccel2DContext, id 0x10000084f, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 0
+  |     "accumulatedGPUTime" = 0
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o IOAccelDisplayPipeUserClient2  <class IOAccelDisplayPipeUserClient2, id 0x100000859, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccel2DContext  <class AMDRadeonX6000_AMDAccel2DContext, id 0x10000085c, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 0
+  |     "accumulatedGPUTime" = 0
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o IOAccelDisplayPipeUserClient2  <class IOAccelDisplayPipeUserClient2, id 0x100000865, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccel2DContext  <class AMDRadeonX6000_AMDAccel2DContext, id 0x100000867, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 0
+  |     "accumulatedGPUTime" = 0
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o IOAccelDisplayPipeUserClient2  <class IOAccelDisplayPipeUserClient2, id 0x100000870, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccel2DContext  <class AMDRadeonX6000_AMDAccel2DContext, id 0x100000872, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 0
+  |     "accumulatedGPUTime" = 0
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o IOAccelDisplayPipeUserClient2  <class IOAccelDisplayPipeUserClient2, id 0x10000087b, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x10000087c, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x10000087d, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x100000884, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x100000889, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x10000088a, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x10000088b, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x10000088c, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x10000088d, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x10000088e, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x10000088f, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x100000890, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x100000891, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x1000008aa, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 349260414158
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |     "accumulatedGPUTime" = 1173913733
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x1000008ab, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 349251274788
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |     "accumulatedGPUTime" = 55916400
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x1000009bc, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 519, com.apple.dock.e"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x1000009bd, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 519, com.apple.dock.e"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x1000009be, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 34384074330
+  |     "IOUserClientCreator" = "pid 519, com.apple.dock.e"
+  |     "accumulatedGPUTime" = 98720
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x1000009ef, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 574, avconferenced"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x1000009f0, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 574, avconferenced"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000a04, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 594, SafeEjectGPUServ"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000a05, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 594, SafeEjectGPUServ"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000a07, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 484, Finder"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000a08, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 484, Finder"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x100000a09, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 114355563405
+  |     "IOUserClientCreator" = "pid 484, Finder"
+  |     "accumulatedGPUTime" = 54280
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000a33, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 466, Terminal"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000a34, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 466, Terminal"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x100000a35, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 38067531677
+  |     "IOUserClientCreator" = "pid 466, Terminal"
+  |     "accumulatedGPUTime" = 14760
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000a71, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 693, UserNotification"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000a72, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 693, UserNotification"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x100000a73, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 53890016573
+  |     "IOUserClientCreator" = "pid 693, UserNotification"
+  |     "accumulatedGPUTime" = 24960
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000aab, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 674, PhotosReliveWidg"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000aac, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 674, PhotosReliveWidg"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000ae4, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 763, ESP Mounter Pro"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000ae5, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 763, ESP Mounter Pro"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x100000ae6, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 66918611304
+  |     "IOUserClientCreator" = "pid 763, ESP Mounter Pro"
+  |     "accumulatedGPUTime" = 20840
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000b68, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 6122, browser_x64.maco"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000b69, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 6122, browser_x64.maco"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x100000b6a, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 316268030445
+  |     "IOUserClientCreator" = "pid 6122, browser_x64.maco"
+  |     "accumulatedGPUTime" = 15560
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000b7c, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 6328, IINA"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000b7d, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 6328, IINA"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x100000b84, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 280941200170
+  |     "IOUserClientCreator" = "pid 6328, IINA"
+  |     "accumulatedGPUTime" = 37080
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000b85, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "GL/CL"
+  |     "IOUserClientCreator" = "pid 6328, IINA"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000b86, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 6328, IINA"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDGFX10GLContext  <class AMDRadeonX6000_AMDGFX10GLContext, id 0x100000b87, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 349248558168
+  |     "IOUserClientCreator" = "pid 6328, IINA"
+  |     "accumulatedGPUTime" = 862742913
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000b89, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 6413, VTDecoderXPCServ"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000b8a, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 6413, VTDecoderXPCServ"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000b8f, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 6413, VTDecoderXPCServ"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000b90, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 6413, VTDecoderXPCServ"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDNavi10VideoContext  <class AMDRadeonX6000_AMDNavi10VideoContext, id 0x100000b91, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 349248717210
+  |     "IOUserClientCreator" = "pid 6413, VTDecoderXPCServ"
+  |     "accumulatedGPUTime" = 2844886970
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x100000b92, !registered, !matched, active, busy 0, retain 6>
+      {
+        "lastSubmittedTime" = 349250529046
+        "IOUserClientCreator" = "pid 6413, VTDecoderXPCServ"
+        "accumulatedGPUTime" = 50551120
+      }
+      
+
++-o AMDRadeonX6000_AMDNavi21GraphicsAccelerator  <class AMDRadeonX6000_AMDNavi21GraphicsAccelerator, id 0x100000775, registered, matched, active, busy 0 (5242 ms), retain 65>
+  | {
+  |   "AccelCaps" = 15
+  |   "IODVDBundleName" = "AMDRadeonVADriver2"
+  |   "IOGVAHEVCEncode" = "1"
+  |   "ATY,intrev" = 41
+  |   "AccelNativeDMARowByteAlignment" = 256
+  |   "InternalStatisticsAccm" = {}
+  |   "MetalStatisticsName" = "GFX10Statistics"
+  |   "GPURawCounterBundleName" = "AMDRawCounterPlugin"
+  |   "GPUDCCDisplayable" = No
+  |   "IOGeneralInterest" = "IOCommand is not serializable"
+  |   "InternalStatistics" = {}
+  |   "MetalPluginClassName" = "AMDMTLGFX10Device"
+  |   "GPURawCounterPluginClassName" = "AMDRawCounterSourceGroup"
+  |   "GpuDebugPolicy" = 0
+  |   "GPUConfigurationVariable" = {"NumROP"=16,"MemBusWidth"=256,"NumCUPerSH"=10,"NumSH"=2,"SysClkFreq"=266000,"NumSE"=4,"MemClkFreq"=100000}
+  |   "AGCInfo" = {"fBusyCount"=0,"poweredOffByAGC"=No,"fSubmissionsSinceLastCheck"=85905,"fLastSubmissionPID"=153}
+  |   "dpm" = 1
+  |   "MetalPluginName" = "AMDRadeonX6000MTLDriver"
+  |   "PerformanceStatisticsAccum" = {"ioSurfacePageOutBytes"=0,"HWChannel SDMA0 | Commands Completed"=0,"ioSurfacePageInBytes"=0,"HWChannel SDMA2 | Commands Submitted"=0,"gartMapOutBytesPerSample"=0,"HWChannel SDMA1 | Commands Completed"=0,"orphanedNonReusableSysMemoryCount"=0,"orphanedReusableSysMemoryCount"=0,"HWChannel VCN1Dec | Commands Submitted"=0,"HWChannel VCN1EncLLQ | Commands Completed"=0,"swapComplete2DWaitTime"=0,"finishCLWaitTime"=0,"orphanedReusableVidMemoryBytes"=567775232,"gartFreeBytes"=6363594752,"agprefTextureCreationBytes"=0,"textureReadOutBytes"=0,"HWChannel VCN0Enc | Commands Submitted"=0,"clientSharedAllocatedBytes"=536576,"textureVolunteerUnloadBytes"=0,"agprefTextureCreationCount"=0,"GPU Activity(%)"=4,"HWChannel KIQ | Commands Completed"=0,"HWChannel SDMA1_PAGE | Commands Submitted"=0,"HWChannel SDMA0 | Commands Submitted"=0,"surfaceTextureCreationCount"=0,"context2DCount"=4,"Fan Speed(%)"=0,"HWChannel SDMA1 | Commands Submitted"=0,"stdTexturePageInBytes"=0,"HWChannel SDMA2_PAGE | Commands Completed"=0,"Device Utilization %"=0,"orphanedNonReusableSysMemoryBytes"=0,"surfaceBufferReadOutBytes"=0,"swapCompleteGLWaitTime"=0,"swapCompleteVideoWaitTime"=0,"HWChannel SDMA0_PAGE | Commands Submitted"=0,"surfaceCopyOutWaitTime"=0,"HWChannel GFX | Commands Submitted"=0,"dataBufferCount"=0,"swapBytesPerSample"=0,"HWChannel HIQ | Commands Completed"=0,"HWChannel VCN0EncLLQ | Commands Submitted"=0,"HWChannel VCN1Dec | Commands Completed"=0,"bufferSwapCount"=0,"finishGLWaitTime"=0,"freeDataBufferWaitTime"=0,"surfaceCopyInWaitTime"=0,"stdTextureCreationCount"=0,"dataBytesPerSample"=0,"freeToAllocGPUAddressWaitTime"=0,"oolTexturePageInBytes"=0,"contextGLCount"=1,"oolTextureCreationCount"=0,"inUseSysMemoryBytes"=78856192,"HWChannel VCN0Enc | Commands Completed"=0,"hardwareWaitTime"=0,"vramFreeBytes"=16339275776,"HWChannel SDMA3_PAGE | Commands Submitted"=0,"stdTextureCreationBytes"=0,"contextVideoCount"=1,"inUseVidMemoryBytes"=256040960,"recoveryCount"=0,"oolTextureCreationBytes"=0,"vramEvictionWaitTime"=0,"contextCLCount"=0,"hardwareSubmitWaitTime"=0,"HWChannel HIQ | Commands Submitted"=0,"surfaceSetShapeIdleWaitTime"=0,"orphanedReusableVidMemoryCount"=391,"HWChannel SDMA3 | Commands Completed"=0,"volatileSurfaceCount"=0,"orphanedReusableSysMemoryBytes"=0,"iosurfaceTextureCreationBytes"=0,"orphanedNonReusableVidMemoryCount"=0,"gartSizeBytes"=6442450944,"HWChannel VCN0Dec | Commands Submitted"=0,"surfaceBufferPageOutBytes"=0,"HWChannel SDMA1_PAGE | Commands Completed"=0,"finishAll2DWaitTime"=0,"HWChannel VCN1EncLLQ | Commands Submitted"=0,"Core Clock(MHz)"=689,"HWChannel KIQ | Commands Submitted"=0,"HWChannel VCN0Dec | Commands Completed"=0,"texturePageOutBytes"=0,"Temperature(C)"=54,"surfaceWriteLockIdleWaitTime"=0,"clientGLWaitTime"=0,"gartCacheBytes"=33554432,"gartUsedBytes"=78856192,"surfaceBufferTextureCreationCount"=0,"surfaceReadLockIdleWaitTime"=0,"Total Power(W)"=39,"iosurfaceTextureCreationCount"=0,"HWChannel SDMA3 | Commands Submitted"=0,"HWChannel SDMA2 | Commands Completed"=0,"HWChannel VCN0EncLLQ | Commands Completed"=0,"ioSurfaceReadOutBytes"=0,"bufferFlipCount"=0,"surfaceCount"=20,"orphanedReusableSysMemoryHitRate"=0,"agpTextureCreationCount"=0,"freeSurfaceBackingWaitTime"=0,"finishVideoWaitTime"=0,"orphanedNonReusableVidMemoryBytes"=0,"orphanedReusableVidMemoryHitRate"=77,"HWChannel SDMA2_PAGE | Commands Submitted"=0,"gartMapInBytesPerSample"=0,"agpTextureCreationBytes"=0,"HWChannel GFX | Commands Completed"=0,"HWChannel VCN1Enc | Commands Submitted"=0,"finish2DWaitTime"=0,"Memory Clock(MHz)"=1990,"Fan Speed(RPM)"=0,"HWChannel SDMA3_PAGE | Commands Completed"=0,"surfaceBufferPageInBytes"=0,"freeSurfaceSwapBufferWaitTime"=0,"textureCount"=1125,"HWChannel VCN1Enc | Commands Completed"=0,"HWChannel SDMA0_PAGE | Commands Completed"=0}
+  |   "PerformanceStatistics" = {"ioSurfacePageOutBytes"=0,"HWChannel SDMA0 | Commands Completed"=0,"ioSurfacePageInBytes"=0,"HWChannel SDMA2 | Commands Submitted"=0,"gartMapOutBytesPerSample"=0,"HWChannel SDMA1 | Commands Completed"=0,"orphanedNonReusableSysMemoryCount"=0,"orphanedReusableSysMemoryCount"=0,"HWChannel VCN1Dec | Commands Submitted"=0,"HWChannel VCN1EncLLQ | Commands Completed"=0,"swapComplete2DWaitTime"=0,"finishCLWaitTime"=0,"orphanedReusableVidMemoryBytes"=567775232,"gartFreeBytes"=6363594752,"agprefTextureCreationBytes"=0,"textureReadOutBytes"=0,"HWChannel VCN0Enc | Commands Submitted"=0,"clientSharedAllocatedBytes"=536576,"textureVolunteerUnloadBytes"=0,"agprefTextureCreationCount"=0,"GPU Activity(%)"=4,"HWChannel KIQ | Commands Completed"=0,"HWChannel SDMA1_PAGE | Commands Submitted"=3,"HWChannel SDMA0 | Commands Submitted"=0,"surfaceTextureCreationCount"=0,"context2DCount"=4,"Fan Speed(%)"=0,"HWChannel SDMA1 | Commands Submitted"=0,"stdTexturePageInBytes"=1867776,"HWChannel SDMA2_PAGE | Commands Completed"=0,"Device Utilization %"=1,"orphanedNonReusableSysMemoryBytes"=0,"surfaceBufferReadOutBytes"=0,"swapCompleteGLWaitTime"=0,"swapCompleteVideoWaitTime"=0,"HWChannel SDMA0_PAGE | Commands Submitted"=9,"surfaceCopyOutWaitTime"=0,"HWChannel GFX | Commands Submitted"=6,"dataBufferCount"=0,"swapBytesPerSample"=0,"HWChannel HIQ | Commands Completed"=0,"HWChannel VCN0EncLLQ | Commands Submitted"=0,"HWChannel VCN1Dec | Commands Completed"=0,"bufferSwapCount"=0,"finishGLWaitTime"=0,"freeDataBufferWaitTime"=0,"surfaceCopyInWaitTime"=0,"stdTextureCreationCount"=4,"dataBytesPerSample"=0,"freeToAllocGPUAddressWaitTime"=0,"oolTexturePageInBytes"=0,"contextGLCount"=1,"oolTextureCreationCount"=0,"inUseSysMemoryBytes"=78856192,"HWChannel VCN0Enc | Commands Completed"=0,"hardwareWaitTime"=0,"vramFreeBytes"=16339275776,"HWChannel SDMA3_PAGE | Commands Submitted"=0,"stdTextureCreationBytes"=65536,"contextVideoCount"=1,"inUseVidMemoryBytes"=256040960,"recoveryCount"=0,"oolTextureCreationBytes"=0,"vramEvictionWaitTime"=0,"contextCLCount"=0,"hardwareSubmitWaitTime"=0,"HWChannel HIQ | Commands Submitted"=0,"surfaceSetShapeIdleWaitTime"=0,"orphanedReusableVidMemoryCount"=391,"HWChannel SDMA3 | Commands Completed"=0,"volatileSurfaceCount"=0,"orphanedReusableSysMemoryBytes"=0,"iosurfaceTextureCreationBytes"=0,"orphanedNonReusableVidMemoryCount"=0,"gartSizeBytes"=6442450944,"HWChannel VCN0Dec | Commands Submitted"=0,"surfaceBufferPageOutBytes"=0,"HWChannel SDMA1_PAGE | Commands Completed"=3,"finishAll2DWaitTime"=0,"HWChannel VCN1EncLLQ | Commands Submitted"=0,"Core Clock(MHz)"=710,"HWChannel KIQ | Commands Submitted"=0,"HWChannel VCN0Dec | Commands Completed"=0,"texturePageOutBytes"=0,"Temperature(C)"=54,"surfaceWriteLockIdleWaitTime"=0,"clientGLWaitTime"=0,"gartCacheBytes"=33554432,"gartUsedBytes"=78856192,"surfaceBufferTextureCreationCount"=0,"surfaceReadLockIdleWaitTime"=0,"Total Power(W)"=39,"iosurfaceTextureCreationCount"=0,"HWChannel SDMA3 | Commands Submitted"=0,"HWChannel SDMA2 | Commands Completed"=0,"HWChannel VCN0EncLLQ | Commands Completed"=0,"ioSurfaceReadOutBytes"=0,"bufferFlipCount"=0,"surfaceCount"=20,"orphanedReusableSysMemoryHitRate"=0,"agpTextureCreationCount"=0,"freeSurfaceBackingWaitTime"=0,"finishVideoWaitTime"=0,"orphanedNonReusableVidMemoryBytes"=0,"orphanedReusableVidMemoryHitRate"=77,"HWChannel SDMA2_PAGE | Commands Submitted"=0,"gartMapInBytesPerSample"=0,"agpTextureCreationBytes"=0,"HWChannel GFX | Commands Completed"=6,"HWChannel VCN1Enc | Commands Submitted"=0,"finish2DWaitTime"=0,"Memory Clock(MHz)"=1990,"Fan Speed(RPM)"=0,"HWChannel SDMA3_PAGE | Commands Completed"=0,"surfaceBufferPageInBytes"=0,"freeSurfaceSwapBufferWaitTime"=0,"textureCount"=1125,"HWChannel VCN1Enc | Commands Completed"=0,"HWChannel SDMA0_PAGE | Commands Completed"=9}
+  |   "IOGLBundleName" = "AMDRadeonX6000GLDriver"
+  |   "IOPropertyMatch" = {"LoadAccelerator"=Yes}
+  |   "IOKitDebug" = 0
+  |   "IOSourceVersion" = "0.0.0.0.0"
+  |   "GPUDebugNullClientMask" = 0
+  |   "IOGVAHEVCDecodeCapabilities" = {"VTPerProfileDetails"={"1"={"VTMaxDecodeLevel"=153},"2"={"VTMaxDecodeLevel"=153},"3"={"VTMaxDecodeLevel"=153}},"VTSupportedProfileArray"=(1,2,3)}
+  |   "IOGVAH264EncodeCapabilities" = {"VTRating"=350,"VTQualityRating"=50}
+  |   "ATY,cbits" = 524288
+  |   "IOOCDBundleName" = "AMDRadeonX6000GLDriver"
+  |   "cail_properties" = {}
+  |   "CFBundleIdentifier" = "com.apple.kext.AMDRadeonX6000"
+  |   "ResNoAllocPaging" = 0
+  |   "IOVARendererID" = 16908292
+  |   "IOProviderClass" = "IOPCIDevice"
+  |   "IOAccelRevision" = 2
+  |   "IOGVACodec" = "AMDVCN2"
+  |   "SWIP_properties" = {"EnableSwVCNFWLoading"=0,"EnableVCNFWLog"=0,"EnableGDDR6MemoryTraining"=0,"EnableSwVCNUnifiedQueue"=No}
+  |   "IOGVAHEVCDecode" = "1"
+  |   "IOClass" = "AMDRadeonX6000_AMDNavi21GraphicsAccelerator"
+  |   "CFBundleIdentifierKernel" = "com.apple.kext.AMDRadeonX6000"
+  |   "IOReportLegendPublic" = Yes
+  |   "IOCFPlugInTypes" = {"ACCF0000-0000-0000-0000-000a2789904e"="IOAccelerator2D.plugin"}
+  |   "IOPCITunnelCompatible" = Yes
+  |   "IOPCIMatch" = "0x73A21002 0x73A31002 0x73A51002 0x73AB1002 0x73AF1002 0x73BF1002"
+  |   "IOMatchCategory" = "IOAccelerator"
+  |   "IOReportLegend" = ({"IOReportChannels"=((4000,6442450945,"Overall GPU Busy"),(4001,6442450945,"Overall GPU total time"),(4002,6442450945,"3d Busy"),(4003,6442450945,"3d total time"),(4010,6442450945,"DMA Busy"),(4011,6442450945,"DMA total time"),(4006,6442450945,"Video Busy"),(4007,6442450945,"Video total time"),(4008,6442450945,"Compute Busy"),(4009,6442450945,"Compute total time"),(4705492297355379200,6442450945,"PM4 Busy"),(4705492297355383808,6442450945,"PM4 total time"),(0,6442450945,"Command Buffer Bytes"),(1,6442450945,"GL Command Buffer Bytes"),(2,6442450945,"CL Command Buffer Bytes"),(3,6442450945,"2D Command Buffer Bytes"),(4,6442450945,"Video Command Buffer Bytes"),(5,6442450945,"Out-Of-Line Texture Creation Bytes"),(6,6442450945,"Shared System Memory Texture Creation Bytes"),(7,6442450945,"Private Video Memory Texture Creation Bytes"),(8,6442450945,"Private System Memory Texture Creation Bytes"),(9,6442450945,"IOSurface Backed Texture Creation Bytes"),(10,6442450945,"Out-Of-Line Texture Creation Count"),(11,6442450945,"Private Video Memory Texture Creation Count"),(12,6442450945,"Private System Memory Texture Creation Count"),(13,6442450945,"Shared System Memory Texture Creation Count"),(14,6442450945,"IOAccelSurfaceRef Texture Creation Count"),(15,6442450945,"IOAccelSurfaceBufferRef Texture Creation Count"),(16,6442450945,"IOSurface Backed Texture Creation Count"),(17,6442450945,"Texture Count"),(20,6442450945,"Bytes mapped into the GPU"),(21,6442450945,"Bytes unmapped from the GPU"),(82,6442450945,"IOAccelClientShared allocated bytes"),(22,6442450945,"Private textures bytes paged on"),(23,6442450945,"Out of line texture bytes paged on"),(24,6442450945,"IOAccelSurface bytes paged on"),(25,6442450945,"IOSurface bytes paged on"),(26,6442450945,"IOSurface bytes evicted"),(27,6442450945,"IOAccelSurface bytes evicted"),(28,6442450945,"Texture bytes evicted"),(29,6442450945,"IOSurface bytes paged off"),(30,6442450945,"IOAccelSurface bytes paged off"),(31,6442450945,"Texture bytes paged off"),(32,6442450945,"Texture bytes voluntarily paged off"),(33,6442450945,"IOAccelSurface count"),(34,6442450945,"Volatile IOAccelSurface count"),(35,6442450945,"2D context count"),(36,6442450945,"Video context count"),(37,6442450945,"OpenGL context count"),(38,6442450945,"OpenCL context count"),(39,6442450945,"Buffer swap count"),(40,6442450945,"Buffer flip count"),(41,6442450945,"Databuffer count"),(42,6442450945,"VRAM eviction wait time"),(43,6442450945,"CPU wait on GPU"),(44,6442450945,"CPU wait to submit to GPU"),(45,6442450945,"GL Client wait on GPU"),(46,6442450945,"CL Client wait on GPU"),(47,6442450945,"CPU Wait to evict resource"),(49,6442450945,"CPU wait for free databuffer"),(53,6442450945,"GL Client wait for swap complete"),(55,6442450945,"CPU Wait to copy in surface"),(56,6442450945,"CPU Wait to copy out surface"),(59,6442450945,"CPU Wait for surface idle"),(60,6442450945,"CPU Wait for resource read"),(61,6442450945,"CPU Wait for resource write"),(62,6442450945,"CPU Wait for all 2D finish"),(63,6442450945,"CPU Wait for 2D finish"),(64,6442450945,"CPU Wait for video finish"),(65,6442450945,"CPU Wait for GL finish"),(66,6442450945,"CPU Wait for CL finish"),(106,6442450945,"In use system memory"),(105,6442450945,"In use video memory"),(103,6442450945,"Command Queue Count"),(104,6442450945,"GPU Restart Count")),"IOReportGroupName"="Internal Statistics","IOReportChannelInfo"={"IOReportChannelUnit"=0}})
+  |   "IOProbeScore" = 0
+  |   "IOGVAHEVCEncodeCapabilities" = {"VTPerProfileDetails"={"1"={"VTMaxEncodeLevel"=153}},"VTQualityRating"=50,"VTRating"=350,"VTSupportedProfileArray"=(1)}
+  |   "IOAccelDisplayPipeCapabilities" = {"DisplayPipeSupported"=Yes,"TransactionsSupported"=Yes}
+  |   "SurfaceList" = ()
+  | }
+  | 
+  +-o AMDRadeonX6000_AMDAccel2DContext  <class AMDRadeonX6000_AMDAccel2DContext, id 0x10000084f, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 0
+  |     "accumulatedGPUTime" = 0
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o IOAccelDisplayPipeUserClient2  <class IOAccelDisplayPipeUserClient2, id 0x100000859, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccel2DContext  <class AMDRadeonX6000_AMDAccel2DContext, id 0x10000085c, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 0
+  |     "accumulatedGPUTime" = 0
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o IOAccelDisplayPipeUserClient2  <class IOAccelDisplayPipeUserClient2, id 0x100000865, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccel2DContext  <class AMDRadeonX6000_AMDAccel2DContext, id 0x100000867, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 0
+  |     "accumulatedGPUTime" = 0
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o IOAccelDisplayPipeUserClient2  <class IOAccelDisplayPipeUserClient2, id 0x100000870, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccel2DContext  <class AMDRadeonX6000_AMDAccel2DContext, id 0x100000872, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 0
+  |     "accumulatedGPUTime" = 0
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o IOAccelDisplayPipeUserClient2  <class IOAccelDisplayPipeUserClient2, id 0x10000087b, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x10000087c, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x10000087d, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x100000884, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x100000889, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x10000088a, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x10000088b, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x10000088c, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x10000088d, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x10000088e, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x10000088f, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x100000890, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSurface  <class AMDRadeonX6000_AMDAccelSurface, id 0x100000891, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x1000008aa, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 349260414158
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |     "accumulatedGPUTime" = 1173913733
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x1000008ab, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 349251274788
+  |     "IOUserClientCreator" = "pid 153, WindowServer"
+  |     "accumulatedGPUTime" = 55916400
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x1000009bc, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 519, com.apple.dock.e"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x1000009bd, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 519, com.apple.dock.e"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x1000009be, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 34384074330
+  |     "IOUserClientCreator" = "pid 519, com.apple.dock.e"
+  |     "accumulatedGPUTime" = 98720
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x1000009ef, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 574, avconferenced"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x1000009f0, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 574, avconferenced"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000a04, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 594, SafeEjectGPUServ"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000a05, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 594, SafeEjectGPUServ"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000a07, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 484, Finder"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000a08, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 484, Finder"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x100000a09, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 114355563405
+  |     "IOUserClientCreator" = "pid 484, Finder"
+  |     "accumulatedGPUTime" = 54280
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000a33, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 466, Terminal"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000a34, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 466, Terminal"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x100000a35, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 38067531677
+  |     "IOUserClientCreator" = "pid 466, Terminal"
+  |     "accumulatedGPUTime" = 14760
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000a71, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 693, UserNotification"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000a72, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 693, UserNotification"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x100000a73, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 53890016573
+  |     "IOUserClientCreator" = "pid 693, UserNotification"
+  |     "accumulatedGPUTime" = 24960
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000aab, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 674, PhotosReliveWidg"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000aac, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 674, PhotosReliveWidg"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000ae4, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 763, ESP Mounter Pro"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000ae5, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 763, ESP Mounter Pro"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x100000ae6, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 66918611304
+  |     "IOUserClientCreator" = "pid 763, ESP Mounter Pro"
+  |     "accumulatedGPUTime" = 20840
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000b68, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 6122, browser_x64.maco"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000b69, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 6122, browser_x64.maco"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x100000b6a, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 316268030445
+  |     "IOUserClientCreator" = "pid 6122, browser_x64.maco"
+  |     "accumulatedGPUTime" = 15560
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000b7c, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 6328, IINA"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000b7d, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 6328, IINA"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x100000b84, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 280941200170
+  |     "IOUserClientCreator" = "pid 6328, IINA"
+  |     "accumulatedGPUTime" = 37080
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000b85, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "GL/CL"
+  |     "IOUserClientCreator" = "pid 6328, IINA"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000b86, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 6328, IINA"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDGFX10GLContext  <class AMDRadeonX6000_AMDGFX10GLContext, id 0x100000b87, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 349248558168
+  |     "IOUserClientCreator" = "pid 6328, IINA"
+  |     "accumulatedGPUTime" = 862742913
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000b89, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "API" = "Metal"
+  |     "IOUserClientCreator" = "pid 6413, VTDecoderXPCServ"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000b8a, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 6413, VTDecoderXPCServ"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelDevice  <class AMDRadeonX6000_AMDAccelDevice, id 0x100000b8f, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 6413, VTDecoderXPCServ"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelSharedUserClient  <class AMDRadeonX6000_AMDAccelSharedUserClient, id 0x100000b90, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "IOUserClientCreator" = "pid 6413, VTDecoderXPCServ"
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDNavi10VideoContext  <class AMDRadeonX6000_AMDNavi10VideoContext, id 0x100000b91, !registered, !matched, active, busy 0, retain 6>
+  |   {
+  |     "lastSubmittedTime" = 349248717210
+  |     "IOUserClientCreator" = "pid 6413, VTDecoderXPCServ"
+  |     "accumulatedGPUTime" = 2844886970
+  |   }
+  |   
+  +-o AMDRadeonX6000_AMDAccelCommandQueue  <class AMDRadeonX6000_AMDAccelCommandQueue, id 0x100000b92, !registered, !matched, active, busy 0, retain 6>
+      {
+        "lastSubmittedTime" = 349250529046
+        "IOUserClientCreator" = "pid 6413, VTDecoderXPCServ"
+        "accumulatedGPUTime" = 50551120
+      }
+      
+

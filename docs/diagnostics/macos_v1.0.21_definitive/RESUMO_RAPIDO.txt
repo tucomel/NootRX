@@ -1,0 +1,31 @@
+=================================================================
+  RESUMO DO DIAGNÓSTICO NootRX_fix - Sun Sep 13 20:27:03 -03 2026
+=================================================================
+OS: macOS 13.7.8 (22H730)
+Modelo: MacPro7,1 | CPU: Intel(R) Core(TM) i7-6800K CPU @ 3.40GHz
+Boot-Args: boot-args	-v debug=0x100 keepsyms=1 npci=0x2000 agdpmod=pikera
+-----------------------------------------------------------------
+KEXTS GRÁFICOS CARREGADOS:
+   55    9 0xffffff8004372000 0x87000    0x87000    as.vit9696.Lilu (1.7.2) 61D6C0C9-5626-3ABC-A6B5-699E0EE8D643 <9 7 6 3 2 1>
+   62    0 0xffffff800469c000 0x62a000   0x62a000   org.ChefKiss.NootRX (1.0.0) A5984426-19D3-35B6-AD2F-D802221E6E2E <55 17 9 7 6 3 2 1>
+-----------------------------------------------------------------
+STATUS DO NOOTRX_FIX:
+Nootrx_rx6900xt_rd: [INIT] Detected GPU 0x73BF:0xC0
+Nootrx_rx6900xt_rd: [FLAGS] nogfxoff=1 noulv=1 novactivedram=0 nompo=1 nostutter=1 floordpm=0 nodcc=1 corefloor=1 diag=1
+Nootrx_rx6900xt_rd: [XML] AMDRadeonX6000: GPUDCCDisplayable=false (DCC scanout disabled)
+Nootrx_rx6900xt_rd: [XML] AMDRadeonX6000: GPUDCCDisplayable=false (DCC scanout disabled)
+Nootrx_rx6900xt_rd: [XML] aty_properties: PP_GfxOffControl=0
+Nootrx_rx6900xt_rd: [XML] aty_properties: PP_DisableULV=1
+Nootrx_rx6900xt_rd: [XML] aty_properties: DalDramClockChangeOneDisplayVActive=1 (single-display DRAM downclocking enabled)
+Nootrx_rx6900xt_rd: [XML] aty_properties: DalForceSingleDispPipeSplit=1
+Nootrx_rx6900xt_rd: [XML] aty_properties: Stutter clocks disabled (safe baseline)
+Nootrx_rx6900xt_rd: [XML] aty_properties: SMU_DisallowedFeatures=0x38400101004 (was 0x4; 500MHz floor + GFXOFF prohibited + MMHUB PG disabled)
+Nootrx_rx6900xt_rd: [XML] aty_config: CFG_USE_STUTTER=false, CFG_USE_FBC=false, CFG_USE_CPT=false
+Nootrx_rx6900xt_rd: [AGDP] Applied board-id -> applehax patch for board Mac-27AD2F918AE68F61
+
+FREQUÊNCIAS DE MEMÓRIA (MCLK / CLK 2):
+
+ALERTAS DE HARDWARE / MPO:
+-----------------------------------------------------------------
+AVISOS NO DMESG:
+=================================================================
