@@ -381,6 +381,14 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                          *   required on this board; it is not the residual
                          *   artifact's cause.  Future experiments must start
                          *   from tag 1.0.3 and change one narrow mechanism.
+                         *
+                         * First untested follow-up (research 2026-09-13):
+                         * restore upstream's MacPro7,1 exception around the
+                         * AGDP board-id patch, and change nothing else.  This
+                         * fork currently forces that patch even though every
+                         * captured boot reports five "vendor modeset callback
+                         * invalid sequence or interleaving" warnings.  Treat
+                         * this as a testable correlation, not a proven cause.
                          */
                         if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
                                         strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
