@@ -358,6 +358,30 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                     auto *driverObj = drivers->getObject(injectedDriverIndex);
                     if (auto *drvDict = OSDynamicCast(OSDictionary, driverObj)) {
                         auto *ioClass = OSDynamicCast(OSString, drvDict->getObject("IOClass"));
+                        /*
+                         * Decision record after the 1.0.3 baseline tests
+                         * (2026-09-12/13, Ventura 13.7.8 22H730, Red Devil
+                         * 6900 XT 1002:73BF/C0 + 148C:2408): keep this full
+                         * NootRX driver path and its 1.0.3 display properties.
+                         * It is the only measured configuration that remained
+                         * usable and removed approximately 99.5% of artifacts.
+                         *
+                         * Do not repeat the rejected experiments:
+                         * - PP_MclkDpmDisabled/CFG_FORCEMAXDPM prevented the
+                         *   mandatory cold-boot GDDR6 training and panicked.
+                         * - Native VActive DRAM changes caused repeated
+                         *   IOAccelDisplayPipe timeouts and GFX channel resets.
+                         * - Avoiding pipe split caused yellow screens/resets.
+                         * - Restoring GPUTaskSingleChannel in isolation did not
+                         *   change the artifacts or reset signature.
+                         * - v1.0.7 native Navi21 passthrough was dramatically
+                         *   worse: severe artifacts and two independent
+                         *   DisplayPipe/GFX-51 resets about 24 seconds apart.
+                         *   Therefore NootRX's low-level Navi21 replacement is
+                         *   required on this board; it is not the residual
+                         *   artifact's cause.  Future experiments must start
+                         *   from tag 1.0.3 and change one narrow mechanism.
+                         */
                         if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
                                         strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
                             if (callback->rdFlags.noDcc) {
