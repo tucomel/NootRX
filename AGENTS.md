@@ -433,9 +433,10 @@ remova-os depois de preservar qualquer evidência útil.
 11. Altere somente o kext e a chave experimental necessária no config.
 12. Valide o config e compare-o com a baseline para provar o diff mínimo.
 13. Depois da cópia, compare recursivamente o bundle e valide hashes no USB.
-14. Teste cold boot, desktop/IINA sem Heaven, Heaven sob carga, fechamento do
+14. Ao concluir o deploy na EFI, sugira sempre ao usuário: "a1 ) deseja ejetar o pendrive para testar?"
+15. Teste cold boot, desktop/IINA sem Heaven, Heaven sob carga, fechamento do
     Heaven e idle prolongado.
-15. Colete diagnóstico e só então aceite ou rejeite a hipótese.
+16. Colete diagnóstico e só então aceite ou rejeite a hipótese.
 
 ## Próxima direção de pesquisa, sem autorização para patch imediato
 
