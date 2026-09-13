@@ -150,9 +150,17 @@ Resultados da baseline:
 | `experiment-noidlepower-failed` | `fca3c93` | Rejeitado conclusivamente por persistência de artefatos sob Heaven, piora após saída e crash do driver de vídeo ao encerrar gravação de tela (DisplayPipe stamp 57 timeout / Restart Channel GFX). |
 | `v1.0.14-floordpm4-test` | `c147899` | Variável única: DalForceMinDpmLevel=4 (1000 MHz / DPM Max floor) para eliminar oscilação 673-1000 MHz em idle. |
 | `experiment-floordpm4-failed` | `c147899` | Rejeitado conclusivamente: memória travou em 1000 MHz (1990 MHz efetivos), mas fragmentos permaneceram iguais; colisão de stamp entre screencapture e Heaven (timeout stamp 5643 / Restart Channel 4 ComputeUQ1). Prova que UCLK não é a causa raiz. |
-| `v1.0.15-corefloor500-test` | `0b1d76c` | Variável única: PP_GfxclkDeepSleepDisable=1 e PP_SclkDeepSleepDisable=1 (piso do Core Clock em 500 MHz / 0.800V) com memória 100% livre (sem DalForceMinDpmLevel). |
+| `v1.0.15-corefloor500-test` | `8cd9cfb` | Variável única: PP_GfxclkDeepSleepDisable=1 e PP_SclkDeepSleepDisable=1 (tentativa de piso 500 MHz) com memória livre (sem DalForceMinDpmLevel). |
+| `experiment-corefloor500-failed` | `8cd9cfb` | Rejeitado conclusivamente: chaves PP_*DeepSleepDisable inexistentes no driver da Apple; remoção de DalForceMinDpmLevel derrubou Core Clock para 56-62 MHz em idle, piorando fragmentos, causando timeout DisplayPipe stamp 57, 2 resets de driver (GFX e ComputeUQ3) e abortando gravação de tela. Heaven eliminou 100% dos fragmentos enquanto rodava, voltando ao fechar. |
 
 ## Experimentos rejeitados — não repetir nem combinar
+
+### PP_GfxclkDeepSleepDisable / Memória Livre (v1.0.15)
+
+- `v1.0.15-corefloor500-test`: Injetar `PP_GfxclkDeepSleepDisable=1` e `PP_SclkDeepSleepDisable=1` e remover `DalForceMinDpmLevel` revelou que essas chaves de deep sleep não existem no driver macOS (`AMDRadeonX6000`). Sem `DalForceMinDpmLevel=3`, o DPM despencou para o piso absoluto (Nível 0), fazendo o Core Clock cair para **56–62 MHz** (pior que os 126–150 MHz da baseline 1.0.3).
+- Consequências: piora imediata dos fragmentos no desktop, timeout do DisplayPipe aos 50s (`stamp index 57 time out`), dois resets de driver (`Restart Channel: 51 GFX` e `Restart Channel: 6 ComputeUQ3`), e timeout de sincronização entre Heaven e captura de tela (`waitForStamp timeout stamp 742`).
+- **Achado Crítico Crucial:** Durante a execução do Heaven, com o Core Clock elevado para >1500 MHz, **100% dos fragmentos sumiram completamente (0.00% artefatos)**. Ao fechar o Heaven e o clock retornar a 56 MHz, os fragmentos voltaram imediatamente. Isso confirma 100% que os fragmentos residuais são consequência direta da queda do clock do núcleo em repouso 2D.
+- Conclusão: `DalForceMinDpmLevel=3` NUNCA deve ser removido (é o único piso que impede queda para DPM 0). Rollback para a baseline 1.0.3.
 
 ### DalForceMinDpmLevel=4 (v1.0.14)
 

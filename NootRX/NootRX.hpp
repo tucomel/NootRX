@@ -45,8 +45,6 @@ struct RedDevilFlags {
     bool noStutter {false};
     bool floorDpm {false};
     bool noDcc {false};
-    bool coreFloor {false};
-    bool freeMem {false};
     bool diag {false};
 };
 
