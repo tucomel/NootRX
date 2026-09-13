@@ -146,6 +146,7 @@ Resultados da baseline:
 | `experiment-force8bpc-ineffective-slow-failed` | `94ad3f4` | Registro definitivo da rejeição da 1.0.11. |
 | `v1.0.12-cfgnodcc-test` | `d742456` | Variável única: CFG_NO_DCC=true no aty_config para desativar DCC no controlador DCN (consumidor). |
 | `experiment-cfgnodcc-failed` | `d742456` | Rejeitado conclusivamente por aumento severo de fragmentos no desktop e corrupção persistente. |
+| `v1.0.13-noidlepower-test` | `43ceaf3` | Variável única: DalDisableIdlePowerOptimizations=1 para impedir power gating de front-ends DCN e timeouts do MPCC. |
 
 ## Experimentos rejeitados — não repetir nem combinar
 

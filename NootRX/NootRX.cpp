@@ -261,13 +261,14 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
     this->rdFlags.noStutter = checkFlag("rd-nostutter");
     this->rdFlags.floorDpm = checkFlag("rd-floordpm");
     this->rdFlags.noDcc = checkFlag("rd-nodcc");
+    this->rdFlags.noIdlePower = checkFlag("rd-noidlepower");
     this->rdFlags.diag = checkFlag("rd-diag") || ADDPR(debugEnabled) || checkKernelArgument("-NRXDebug");
 
     this->appendLog("NootRX_fix: [INIT] Detected GPU 0x%04X:0x%02X\n", this->deviceId, this->pciRevision);
-    this->appendLog("NootRX_fix: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d diag=%d\n",
+    this->appendLog("NootRX_fix: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d noidlepower=%d diag=%d\n",
                     this->rdFlags.noGfxOff, this->rdFlags.noUlv, this->rdFlags.noVActiveDram,
                     this->rdFlags.noMpo, this->rdFlags.noStutter, this->rdFlags.floorDpm,
-                    this->rdFlags.noDcc, this->rdFlags.diag);
+                    this->rdFlags.noDcc, this->rdFlags.noIdlePower, this->rdFlags.diag);
 
     this->dyldpatches.processPatcher(patcher);
 
@@ -392,24 +393,40 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                          *   but DAL and AGDP remained at 10-bpc (pBPC=2). Did
                          *   not cure residual artifacts and delayed boot. REJECTED.
                          *
-                         * v1.0.12 single-variable experiment (2026-09-13):
-                         * Reverse-engineering of Ventura 22H730 AMDRadeonX6000Framebuffer
-                         * revealed that v1.0.3's GPUDCCDisplayable=false only disabled
-                         * DCC on the producer side (Metal/accelerator surface allocation).
-                         * The consumer side (Display Core / DCN controller) maintains its
-                         * own DCC capability flag: bit 16 of AmdProjectFeatures, queried
-                         * by supportsFeature(0x10). When bit 16 is 1 (the default),
-                         * AmdRadeonFramebuffer::enableController sets bit 9 of 0x89A4
-                         * and callPlatformFunctionFromDrvr negotiates DCC surface parameters
-                         * with the accelerator.
+                         * - v1.0.12 tested CFG_NO_DCC=true in aty_config;
+                         *   resulted in severe full-desktop tile corruption
+                         *   even during Heaven. Proved that DCN hardware
+                         *   decompressor MUST remain active for GPU surfaces.
+                         *   REJECTED.
                          *
-                         * The Apple driver natively parses "CFG_NO_DCC" from aty_config:
-                         * when present and true, readRegistryPropertiesEv clears bit 16,
-                         * causing supportsFeature(0x10) to return false. This cleanly
-                         * bypasses the DCC platform negotiation and disables DCC decoding
-                         * in the DCN display controller, closing the loop with the 1.0.3
-                         * GPUDCCDisplayable=false fix without touching clocks, MCLK training,
-                         * or pipe splitting.
+                         * Critical Architectural Insight (2026-09-13):
+                         * Cross-referencing Linux DCN and IOGraphicsTypes.h
+                         * proved that displaycolorDepth:2 in Display Core
+                         * is COLOR_DEPTH_888 (8 bpc) and pBPC=0x2 in AGDP is
+                         * kIODisplayRGBColorComponentBits8 (8 bpc). The DP link
+                         * was ALREADY operating in 8-bpc! The residual 0.5%
+                         * artifacts were NOT a color depth mismatch.
+                         *
+                         * The True Culprit: DCN Idle Front-End Power Gating.
+                         * Diagnostics across all boots record:
+                         * - "mpc2_assert_idle_mpcc timeout 1us * 100000 tries"
+                         * - "Power gated front end 0..4"
+                         * - "Power down front end 0..4"
+                         * When Heaven runs, active 3D load prevents idle power
+                         * gating -> 0% artifacts. When screen recording runs,
+                         * continuous readback prevents idle power gating -> 0%
+                         * artifacts. In idle desktop, front-ends are gated;
+                         * MPCC times out asserting idle, and the wakeup transition
+                         * scans out corrupted tile blocks until redrawn by mouse.
+                         *
+                         * v1.0.13 single-variable experiment (2026-09-13):
+                         * AMDRadeonX6000Framebuffer natively evaluates:
+                         *   "DalDisableIdlePowerOptimizations" (uint32)
+                         * setting dc->debug.disable_idle_power_optimizations.
+                         * This causes AmdDalServices::allowIdlePowerOptimization
+                         * to return false and skips dcn30_power_down_front_end(),
+                         * preventing MPCC timeouts and idle tile corruption
+                         * while preserving native GDDR6 training and clocks.
                          */
                         if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
                                         strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
@@ -466,18 +483,18 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                     v3->release();
                                     callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceMinDpmLevel=3 (DPM High floor)\n");
                                 }
+                                if (callback->rdFlags.noIdlePower) {
+                                    auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
+                                    atyProps->setObject("DalDisableIdlePowerOptimizations", v1);
+                                    v1->release();
+                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalDisableIdlePowerOptimizations=1 (idle front-end power gating disabled)\n");
+                                }
                             }
-                            if (atyConfig) {
-                                if (callback->rdFlags.noMpo || callback->rdFlags.noStutter) {
-                                    atyConfig->setObject("CFG_USE_STUTTER", kOSBooleanFalse);
-                                    atyConfig->setObject("CFG_USE_FBC", kOSBooleanFalse);
-                                    atyConfig->setObject("CFG_USE_CPT", kOSBooleanFalse);
-                                    callback->appendLog("NootRX_fix: [XML] aty_config: CFG_USE_STUTTER=false, CFG_USE_FBC=false, CFG_USE_CPT=false\n");
-                                }
-                                if (callback->rdFlags.noDcc) {
-                                    atyConfig->setObject("CFG_NO_DCC", kOSBooleanTrue);
-                                    callback->appendLog("NootRX_fix: [XML] aty_config: CFG_NO_DCC=true (DCN controller DCC disabled)\n");
-                                }
+                            if (atyConfig && (callback->rdFlags.noMpo || callback->rdFlags.noStutter)) {
+                                atyConfig->setObject("CFG_USE_STUTTER", kOSBooleanFalse);
+                                atyConfig->setObject("CFG_USE_FBC", kOSBooleanFalse);
+                                atyConfig->setObject("CFG_USE_CPT", kOSBooleanFalse);
+                                callback->appendLog("NootRX_fix: [XML] aty_config: CFG_USE_STUTTER=false, CFG_USE_FBC=false, CFG_USE_CPT=false\n");
                             }
                         }
                     }

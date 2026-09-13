@@ -41,8 +41,6 @@
 		<dict>
 			<key>CFG_CORRECT_BLPT</key>
 			<true/>
-			<key>CFG_NO_DCC</key>
-			<true/>
 			<key>CFG_TRANS_WSRV</key>
 			<true/>
 			<key>CFG_UFL_CHK</key>
@@ -109,8 +107,6 @@
 		<key>aty_config</key>
 		<dict>
 			<key>CFG_CORRECT_BLPT</key>
-			<true/>
-			<key>CFG_NO_DCC</key>
 			<true/>
 			<key>CFG_TRANS_WSRV</key>
 			<true/>
