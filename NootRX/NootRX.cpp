@@ -382,13 +382,14 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                          *   artifact's cause.  Future experiments must start
                          *   from tag 1.0.3 and change one narrow mechanism.
                          *
-                         * First untested follow-up (research 2026-09-13):
-                         * restore upstream's MacPro7,1 exception around the
-                         * AGDP board-id patch, and change nothing else.  This
-                         * fork currently forces that patch even though every
-                         * captured boot reports five "vendor modeset callback
-                         * invalid sequence or interleaving" warnings.  Treat
-                         * this as a testable correlation, not a proven cause.
+                         * Experiment 1.0.8 (research 2026-09-13) restores
+                         * upstream's MacPro7,1 exception around the AGDP
+                         * board-id patch and changes no display/clock control.
+                         * The local forced patch correlated with five "vendor
+                         * modeset callback invalid sequence or interleaving"
+                         * warnings in every captured baseline boot.  This is a
+                         * testable correlation, not a proven root cause, so do
+                         * not combine it with another functional experiment.
                          */
                         if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
                                         strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
@@ -481,7 +482,26 @@ void NootRXMain::ensureRMMIO() {
 
 void NootRXMain::processKext(KernelPatcher &patcher, size_t id, mach_vm_address_t slide, size_t size) {
     if (kextAGDP.loadIndex == id) {
-        // Apply AGDP patch on all boards including MacPro7,1 (required for commercial PC Navi GPUs)
+        /*
+         * Experiment 1.0.8, based directly on the known-good 1.0.3 state:
+         * preserve Apple's native MacPro7,1 AGDP policy by restoring NootRX
+         * upstream's board exception.  The former local override replaced
+         * "board-id" with "applehax" even on MacPro7,1 and correlated with
+         * five AGDP vendor-modeset sequence/interleaving warnings per boot.
+         * Those warnings do not prove causality, therefore this build changes
+         * only this one mechanism; DCC scanout and every 1.0.3 stability flag
+         * remain untouched.  Non-MacPro7,1 SMBIOS configurations still need
+         * and receive the normal NootRX AGDP patch below.
+         */
+        if (strncmp("Mac-27AD2F918AE68F61", BaseDeviceInfo::get().boardIdentifier, 21) == 0) {
+            DBGLOG("NootRX", "Preserving native MacPro7,1 Apple Graphics Device Policy");
+            if (callback) {
+                callback->appendLog(
+                    "NootRX_fix: [AGDP] Preserving native MacPro7,1 policy (upstream behavior; board-id patch skipped)\n");
+            }
+            return;
+        }
+
         const LookupPatchPlus patch {&kextAGDP, kAGDPBoardIDKeyOriginal, kAGDPBoardIDKeyPatched, 1};
         PANIC_COND(!patch.apply(patcher, slide, size), "NootRX", "Failed to apply AGDP patch");
 
