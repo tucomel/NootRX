@@ -417,6 +417,24 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                          * controller starts, preserving native GDDR6 training
                          * and every other 1.0.3 behavior.  rd-no2step remains
                          * opt-in so removing one config property is rollback.
+                         *
+                         * v1.0.10 result (2026-09-13 02:57): REJECTED.  The
+                         * loaded 1.0.10 kext logged rd-no2step=1 and IORegistry
+                         * confirmed SMU_DisallowedFeatures=0x400000000004, so
+                         * this was a valid test of bit 46 rather than a stale
+                         * EFI.  Before the first visible artifact, DisplayPipe
+                         * stamp 57 timed out at about 50.6 seconds of GPU-driver
+                         * uptime, the screen flashed yellow, and channel 51 GFX
+                         * restarted.  GFX itself had completed its submitted
+                         * work; ComputeUQ2 was pending while waiting on channel
+                         * 26.  Therefore disabling FEATURE_2_STEP_PSTATE does
+                         * not cure the low-load corruption and makes stability
+                         * worse than 1.0.3.  Never combine this flag with a
+                         * future experiment, and do not infer from the reset
+                         * that a direct UCLK clamp is safe: post-reset telemetry
+                         * already showed UCLK near its high state and did not
+                         * capture the pre-reset transition.  Roll back to the
+                         * exact 1.0.3 binary/config before any further A/B test.
                          */
                         if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
                                         strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
