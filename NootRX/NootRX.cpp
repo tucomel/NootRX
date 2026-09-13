@@ -570,21 +570,26 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                          * or 1.0.3 display properties are changed.  Never enable
                          * rd-no2step with this experiment; that test is rejected.
                          *
-                         * v1.0.11 result (2026-09-13): REJECTED.  On its first
-                         * boot the machine completed verbose output but never
-                         * produced the macOS graphical display (black screen).
-                         * No successful WindowServer session or post-boot
-                         * diagnostic exists for this run.  Therefore aliasing
-                         * the two public framebuffer entry points is not enough
-                         * to make depth index 2 equivalent to depth index 1;
-                         * another internal consumer retains depth-2 semantics,
-                         * or the display pipeline requires the originally
-                         * selected index.  Do not deploy rd-force8bpc again and
-                         * do not try either wrapper independently, because that
-                         * would create an even less coherent pixel/modeset pair.
-                         * Restore the exact 1.0.3 kext and config before further
-                         * diagnosis.  This result rejects the implementation,
-                         * not yet the broader 8-bpc hypothesis.
+                         * v1.0.11 result (2026-09-13): REJECTED.  Correcting the
+                         * initial report, the machine remained black for a long
+                         * interval after verbose output but eventually reached
+                         * the login screen.  The route marker was present and
+                         * system_profiler reported 24-Bit Color (ARGB8888), but
+                         * DAL still committed displaycolorDepth=2 and AGDP still
+                         * validated/modeset pBPC=2.  Thus getPixelInformation
+                         * changed the CPU/IOFramebuffer surface description but
+                         * did not change the actual 10-bpc link/output format.
+                         * The residual artifacts were unchanged.  The captured
+                         * boot had no DisplayPipe timeout, channel/GPU restart,
+                         * VM_FAULT, or GDDR6-training failure, even across the
+                         * Heaven load/idle transition, but lack of efficacy plus
+                         * the prolonged display startup makes it unacceptable.
+                         * Another internal DAL/AGDP path owns link color depth.
+                         * Do not deploy rd-force8bpc again and do not try either
+                         * wrapper independently, because that would create an
+                         * even less coherent pixel/modeset pair.  Restore exact
+                         * 1.0.3 before further diagnosis.  This rejects this
+                         * implementation, not yet the broader 8-bpc hypothesis.
                          */
                         if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
                                         strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
