@@ -148,6 +148,7 @@ Resultados da baseline:
 | `experiment-cfgnodcc-failed` | `d742456` | Rejeitado conclusivamente por aumento severo de fragmentos no desktop e corrupção persistente. |
 | `v1.0.13-noidlepower-test` | `fca3c93` | Variável única: DalDisableIdlePowerOptimizations=1 para impedir power gating de front-ends DCN e timeouts do MPCC. |
 | `experiment-noidlepower-failed` | `fca3c93` | Rejeitado conclusivamente por persistência de artefatos sob Heaven, piora após saída e crash do driver de vídeo ao encerrar gravação de tela (DisplayPipe stamp 57 timeout / Restart Channel GFX). |
+| `v1.0.14-floordpm4-test` | `PENDING` | Variável única: DalForceMinDpmLevel=4 (1000 MHz / DPM Max floor) para eliminar oscilação 673-1000 MHz em idle. |
 
 ## Experimentos rejeitados — não repetir nem combinar
 
