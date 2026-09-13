@@ -569,6 +569,22 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                          * stride.  No clocks, SMU features, timings, DCC policy,
                          * or 1.0.3 display properties are changed.  Never enable
                          * rd-no2step with this experiment; that test is rejected.
+                         *
+                         * v1.0.11 result (2026-09-13): REJECTED.  On its first
+                         * boot the machine completed verbose output but never
+                         * produced the macOS graphical display (black screen).
+                         * No successful WindowServer session or post-boot
+                         * diagnostic exists for this run.  Therefore aliasing
+                         * the two public framebuffer entry points is not enough
+                         * to make depth index 2 equivalent to depth index 1;
+                         * another internal consumer retains depth-2 semantics,
+                         * or the display pipeline requires the originally
+                         * selected index.  Do not deploy rd-force8bpc again and
+                         * do not try either wrapper independently, because that
+                         * would create an even less coherent pixel/modeset pair.
+                         * Restore the exact 1.0.3 kext and config before further
+                         * diagnosis.  This result rejects the implementation,
+                         * not yet the broader 8-bpc hypothesis.
                          */
                         if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
                                         strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
