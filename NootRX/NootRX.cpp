@@ -258,20 +258,18 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
     this->rdFlags.noUlv = checkFlag("rd-noulv");
     this->rdFlags.noVActiveDram = checkFlag("rd-novactivedram");
     /*
-     * 1.0.3 investigation note:
+     * Decision record (post-1.0.3): keep rd-novactivedram authoritative.
      *
-     * The diagnostic log contains one transient DRAM_CLK_CHANGE_WATERMARK_A=0
-     * while the display pipe is being rebuilt, but valid values are present
-     * before and after it.  That is not enough evidence to replace a timing
-     * value in the driver.  The remaining safe experiment is an A/B boot with
-     * the native V-Active DRAM path.  This is deliberately a boot-arg-only
-     * override because the stable EFI baseline already contains
-     * rd-novactivedram=1.  The default path is therefore unchanged.
+     * The -rd-vactivedram A/B experiment bypassed this protection and caused
+     * four IOAccelDisplayPipe timeouts followed by GFX channel resets in less
+     * than one minute.  The driver also selected a 96 MHz MCLK state during an
+     * active display commit.  The override was therefore removed rather than
+     * left as a dangerous hidden switch.
      *
-     * Never combine this investigation with MCLK/DPM forcing: the earlier
-     * experiment caused "GDDR6 Long Training Failed" during cold boot.
+     * Do not replace this with PP_MclkDpmDisabled or CFG_FORCEMAXDPM.  That
+     * earlier experiment prevented required cold-boot GDDR6 training and
+     * panicked with "GDDR6 Long Training Failed".
      */
-    this->rdFlags.nativeVActiveDram = checkKernelArgument("-rd-vactivedram");
     this->rdFlags.noMpo = checkFlag("rd-nompo");
     this->rdFlags.noStutter = checkFlag("rd-nostutter");
     this->rdFlags.floorDpm = checkFlag("rd-floordpm");
@@ -279,9 +277,8 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
     this->rdFlags.diag = checkFlag("rd-diag") || ADDPR(debugEnabled) || checkKernelArgument("-NRXDebug");
 
     this->appendLog("NootRX_fix: [INIT] Detected GPU 0x%04X:0x%02X\n", this->deviceId, this->pciRevision);
-    this->appendLog("NootRX_fix: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nativevactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d diag=%d\n",
+    this->appendLog("NootRX_fix: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d diag=%d\n",
                     this->rdFlags.noGfxOff, this->rdFlags.noUlv, this->rdFlags.noVActiveDram,
-                    this->rdFlags.nativeVActiveDram,
                     this->rdFlags.noMpo, this->rdFlags.noStutter, this->rdFlags.floorDpm,
                     this->rdFlags.noDcc, this->rdFlags.diag);
 
@@ -397,21 +394,39 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                     v1->release();
                                     callback->appendLog("NootRX_fix: [XML] aty_properties: PP_DisableULV=1\n");
                                 }
-                                if (callback->rdFlags.noVActiveDram && !callback->rdFlags.nativeVActiveDram) {
+                                if (callback->rdFlags.noVActiveDram) {
                                     auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
                                     atyProps->setObject("DalDisableVActiveDramChange", v1);
                                     v1->release();
                                     callback->appendLog("NootRX_fix: [XML] aty_properties: DalDisableVActiveDramChange=1\n");
-                                } else if (callback->rdFlags.nativeVActiveDram) {
-                                    // Opt-in diagnostic path: leave Apple's native
-                                    // V-Active DRAM policy untouched for A/B testing.
-                                    callback->appendLog("NootRX_fix: [TEST] Native V-Active DRAM changes enabled by -rd-vactivedram\n");
                                 }
                                 if (callback->rdFlags.noMpo) {
+                                    /*
+                                     * Decision record (v1.0.4): rd-nompo is a
+                                     * compatibility name for avoiding MPC pipe split.
+                                     *
+                                     * AMD Display Core defines PipeSplitPolicy=1 as
+                                     * MPC_SPLIT_AVOID.  Its DCN 2.x validation code
+                                     * turns ForceSingleDispPipeSplit=true into a forced
+                                     * two-DPP/MPCC split for a single display.  The
+                                     * previous value of 1 therefore did the opposite of
+                                     * its old comment and matched the observed
+                                     * mpc2_assert_idle_mpcc timeout.  Apple's own Navi 14
+                                     * personality also pairs ForceSingleDispPipeSplit=0
+                                     * with PipeSplitPolicy=1.  This same pair existed on
+                                     * the side-branch v1.0.1-pipe-split-fix, but that
+                                     * branch was never an ancestor of the 1.0.3 DCC fix.
+                                     * Version 1.0.4 deliberately combines both fixes.
+                                     * Keep both values explicit so a later driver default
+                                     * cannot re-enable split.
+                                     */
+                                    auto *v0 = OSNumber::withNumber(static_cast<UInt32>(0), 32);
                                     auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
-                                    atyProps->setObject("DalForceSingleDispPipeSplit", v1);
+                                    atyProps->setObject("DalForceSingleDispPipeSplit", v0);
+                                    atyProps->setObject("DalPipeSplitPolicy", v1);
+                                    v0->release();
                                     v1->release();
-                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceSingleDispPipeSplit=1\n");
+                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceSingleDispPipeSplit=0, DalPipeSplitPolicy=1 (avoid MPC split)\n");
                                 }
                                 if (callback->rdFlags.noStutter) {
                                     auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);

@@ -41,10 +41,9 @@ struct RedDevilFlags {
     bool noGfxOff {false};
     bool noUlv {false};
     bool noVActiveDram {false};
-    // Opt-in A/B test only.  The 1.0.3 baseline keeps V-Active DRAM changes
-    // disabled; this override exists so one boot can test the native path
-    // without editing the protected EFI DeviceProperties entry.
-    bool nativeVActiveDram {false};
+    // The rd-nompo key name is retained for EFI compatibility.  It actually
+    // selects the no-pipe-split policy documented in NootRX.cpp; it does not
+    // claim to disable every macOS overlay path.
     bool noMpo {false};
     bool noStutter {false};
     bool floorDpm {false};
