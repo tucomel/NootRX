@@ -469,6 +469,52 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                          * BIOS to the most stable observed configuration, but
                          * residual artifacts and the short observation window
                          * still prevent a claim of a complete or proven fix.
+                         *
+                         * Windows reference capture (2026-09-13): GPU-Z and
+                         * DxDiag confirm this exact 73BF/C0 + 148C:2408 board
+                         * is stable on the same PCIe 3.0 x16 platform and LG
+                         * 1920x1080@100-Hz display.  The valid 1-MiB VBIOS is
+                         * 113-D41201-XT/020.001.000.047.000000 (SHA-256
+                         * 49d55277ff79f63e5a918857f26eb748206a2e47d7c211b8dcd94d75229aaa91).
+                         * Its PowerPlay v15 table defines GFXCLK 500..2660 MHz
+                         * and UCLK states 97/457/674/1000 MHz, matching the
+                         * levels enumerated by the macOS SMU log.  Therefore
+                         * do not replace the board PowerPlay table or invent
+                         * another UCLK clamp: macOS is already consuming the
+                         * board's real frequency levels, and the 1.0.3 driver
+                         * already reports a 1000-MHz UCLK floor.
+                         *
+                         * Windows telemetry provides the stronger control. At
+                         * desktop idle, GFX stayed at 497..502 MHz while the
+                         * reported memory clock repeatedly moved through
+                         * 8..846 MHz at 0.800 V and about 15 W.  Heaven used
+                         * roughly 2.4..2.5-GHz GFX and 1988..1994-MHz reported
+                         * memory; on exit, memory fell to 20 MHz in one sample
+                         * without corruption. Video playback later kept memory
+                         * near 1988..1990 MHz while GFX remained near 502 MHz.
+                         * This proves the physical board can survive both the
+                         * load/idle transition and low memory states; clock
+                         * level alone is not the residual macOS cause.
+                         *
+                         * The clearest remaining difference is output format:
+                         * Windows reports 32-bit SDR RGB_FULL_G22_NONE_P709,
+                         * i.e. the conventional 8-bpc scanout path, while this
+                         * Ventura driver selects 30-bit ARGB2101010/pBPC=2 on
+                         * the same monitor.  A future single-variable 8-bpc
+                         * experiment is justified, but it must patch or route
+                         * AMDRadeonX6000Framebuffer, which actually owns the
+                         * Navi21 path.  v1.0.9 targeted AMDFramebuffer; that
+                         * kext never loaded, no patch marker appeared, and the
+                         * output remained 30-bit, so it did not test this
+                         * hypothesis.  Keep every 1.0.3 setting unchanged.
+                         *
+                         * Do not yet label the collected ROM as OC or SILENT.
+                         * Its internal configuration identifies 281-W/2340-MHz
+                         * policy data, while the accompanying GPU-Z screenshot
+                         * reports 2015/2250-MHz defaults.  Preserve the file as
+                         * collected and resolve the discrepancy by dumping the
+                         * opposite physical switch position for a binary diff;
+                         * never flash either image as part of this diagnosis.
                          */
                         if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
                                         strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
