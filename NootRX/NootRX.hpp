@@ -90,11 +90,19 @@ class NootRXMain {
     IOPCIDevice *dGPU {nullptr};
     mach_vm_address_t orgAddDrivers {0};
 
+    // Exact Ventura 1002:73BF/C0 + 148C:2408 boards are already supported by
+    // Apple's Navi21 stack.  In this mode NootRX only adjusts the tested
+    // IOCatalogue policy keys and AGDP; it must not replace firmware,
+    // capability tables, golden registers, accelerator code, or the native
+    // driver personalities.
+    bool nativeNavi21Passthrough {false};
+
     X6000FB x6000fb {};
     HWLibs hwlibs {};
     X6000 x6000 {};
     DYLDPatches dyldpatches {};
 
+    static void patchDriverPersonality(OSDictionary *drvDict, bool nativePersonality);
     static bool wrapAddDrivers(void *that, OSArray *array, bool doNubMatching);
 };
 

@@ -234,6 +234,46 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
     DBGLOG("NootRX", "isNavi22: %s", this->attributes.isNavi22() ? "yes" : "no");
     DBGLOG("NootRX", "isNavi23: %s", this->attributes.isNavi23() ? "yes" : "no");
 
+    /*
+     * Decision record (v1.0.6): use Apple's native Navi21 implementation on
+     * the exact Red Devil device tested under Ventura.
+     *
+     * Ventura 13.7.8 already includes 0x73BF1002 in both its Navi21
+     * framebuffer and accelerator personalities.  Nevertheless, normal
+     * NootRX operation replaces those personalities and patches the X6000
+     * framebuffer/HWLibs/accelerator binaries: ASIC capability tables,
+     * golden registers, PSP/SMU/GC/SDMA firmware paths and version checks are
+     * among the state that stops being Apple's native 0x73BF path.
+     *
+     * The v1.0.5 diagnostic proved that restoring GPUTaskSingleChannel=1 was
+     * applied, yet the same mpc2_assert_idle_mpcc timeout remained and a real
+     * GFX command from IINA stalled (CompletedTS 0x1E3 versus SubmittedTS
+     * 0x1E8), followed by IOAccelDisplayPipe timeout and channel 51 restart.
+     * Isolated policy tweaks are therefore no longer a useful discriminator.
+     *
+     * Restrict this experiment to the exact known pair and exact macOS major
+     * version.  Unsupported Navi variants and newer systems retain upstream
+     * NootRX behaviour.  Passthrough still keeps the proven IOCatalogue
+     * property overrides and the existing AGDP patch, because WhateverGreen
+     * is disabled in this EFI; it skips only NootRX's low-level replacement
+     * machinery.
+     *
+     * The validation contract for this test release is Ventura 13.7.8 build
+     * 22H730.  Gate on the registry root's OS Build Version as well as
+     * Ventura: a later security build may change Apple's binaries or
+     * personality shape and must not silently inherit a mode it has never
+     * passed on this hardware.  A missing/non-string root property also fails
+     * this guard.  Post-boot diagnostics must still verify the same value.
+     */
+    auto subsystemVendorId = WIOKit::readPCIConfigValue(this->dGPU, WIOKit::kIOPCIConfigSubSystemVendorID);
+    auto subsystemId = WIOKit::readPCIConfigValue(this->dGPU, WIOKit::kIOPCIConfigSubSystemID);
+    auto *registryRoot = IORegistryEntry::getRegistryRoot();
+    auto *osBuildVersion =
+        registryRoot ? OSDynamicCast(OSString, registryRoot->getProperty("OS Build Version")) : nullptr;
+    this->nativeNavi21Passthrough = getKernelVersion() == KernelVersion::Ventura && this->deviceId == 0x73BF &&
+        this->pciRevision == 0xC0 && subsystemVendorId == 0x148C && subsystemId == 0x2408 &&
+        osBuildVersion != nullptr && osBuildVersion->isEqualTo("22H730");
+
     DeviceInfo::deleter(devInfo);
 
     auto checkFlag = [this](const char *name) -> bool {
@@ -282,7 +322,17 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
                     this->rdFlags.noMpo, this->rdFlags.noStutter, this->rdFlags.floorDpm,
                     this->rdFlags.noDcc, this->rdFlags.diag);
 
-    this->dyldpatches.processPatcher(patcher);
+    this->appendLog("NootRX_fix: [MODE] native-navi21-passthrough=%d (22H730 + 1002:73BF/C0 + 148C:2408 only)\n",
+                    this->nativeNavi21Passthrough);
+
+    if (!this->nativeNavi21Passthrough) {
+        this->dyldpatches.processPatcher(patcher);
+    } else {
+        // Keep a durable IORegistry marker so the post-boot diagnostic can
+        // prove this path was selected even if the file log is truncated.
+        this->dGPU->setProperty("NootRXNativeNavi21Passthrough", 1, 32);
+        this->appendLog("NootRX_fix: [NATIVE] Preserving Apple's dyld/video code path; NootRX shared-cache patches skipped\n");
+    }
 
     KernelPatcher::RouteRequest request {"__ZN11IOCatalogue10addDriversEP7OSArrayb", wrapAddDrivers,
         this->orgAddDrivers};
@@ -328,13 +378,192 @@ static_assert(arrsize(DriverBundleIdentifiers) == arrsize(DriverBundleXMLsBigSur
 
 static UInt8 matchedDrivers = 0;
 
+static bool isNativeNavi21Personality(OSDictionary *dict) {
+    auto *ioClass = OSDynamicCast(OSString, dict->getObject("IOClass"));
+    if (ioClass == nullptr || ioClass->getCStringNoCopy() == nullptr) { return false; }
+
+    auto *name = ioClass->getCStringNoCopy();
+    return strcmp(name, "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
+        strcmp(name, "AMDRadeonX6000_AmdRadeonControllerNavi21") == 0;
+}
+
+void NootRXMain::patchDriverPersonality(OSDictionary *drvDict, bool nativePersonality) {
+    auto *ioClass = OSDynamicCast(OSString, drvDict->getObject("IOClass"));
+    if (ioClass == nullptr || ioClass->getCStringNoCopy() == nullptr) { return; }
+
+    auto *ioClassName = ioClass->getCStringNoCopy();
+    if (strcmp(ioClassName, "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
+        (!nativePersonality && strcmp(ioClassName, "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
+        if (strcmp(ioClassName, "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0) {
+            /*
+             * Decision record (v1.0.5 rejected by v1.0.6): Ventura's native
+             * Navi21 personality already has GPUTaskSingleChannel=1.  Version
+             * 1.0.5 restored the same key to NootRX's replacement XML and the
+             * IORegistry confirmed it, but artifacts and the GFX/display-pipe
+             * reset were unchanged.  In native passthrough we deliberately do
+             * not rewrite the scheduler key; Apple's complete personality is
+             * kept.  The assignment remains only for unsupported devices that
+             * still require NootRX's embedded personality.
+             *
+             * Do not add an 8-bpc override: AMD pBPC=0x2 means
+             * COLOR_DEPTH_888, and the LG EDID declares an 8-bpc input.
+             * ARGB2101010 is the compositor surface format, not proof of a
+             * 10-bpc DisplayPort wire format.
+             */
+            if (nativePersonality) {
+                callback->appendLog("NootRX_fix: [NATIVE] AMDRadeonX6000: preserving Apple's GPUTaskSingleChannel policy\n");
+            } else {
+                auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
+                drvDict->setObject("GPUTaskSingleChannel", v1);
+                v1->release();
+                callback->appendLog("NootRX_fix: [XML] AMDRadeonX6000: GPUTaskSingleChannel=1 (restore Ventura Navi21 default)\n");
+            }
+        }
+        if (callback->rdFlags.noDcc) {
+            drvDict->setObject("GPUDCCDisplayable", kOSBooleanFalse);
+            callback->appendLog("NootRX_fix: [%s] AMDRadeonX6000: GPUDCCDisplayable=false (DCC scanout disabled)\n",
+                nativePersonality ? "NATIVE" : "XML");
+        }
+        if (nativePersonality) {
+            // Post-boot proof that the native accelerator personality was
+            // actually observed and overlaid before catalogue matching.
+            callback->dGPU->setProperty("NootRXNativeAcceleratorOverlay", 1, 32);
+        }
+    }
+
+    if (strcmp(ioClassName, "AMDRadeonX6000_AmdRadeonControllerNavi21") != 0) { return; }
+
+    auto *atyProps = OSDynamicCast(OSDictionary, drvDict->getObject("aty_properties"));
+    auto *atyConfig = OSDynamicCast(OSDictionary, drvDict->getObject("aty_config"));
+    auto *source = nativePersonality ? "NATIVE" : "XML";
+
+    if (atyProps) {
+        if (callback->rdFlags.noGfxOff) {
+            auto *v0 = OSNumber::withNumber(static_cast<UInt32>(0), 32);
+            atyProps->setObject("PP_GfxOffControl", v0);
+            v0->release();
+            callback->appendLog("NootRX_fix: [%s] aty_properties: PP_GfxOffControl=0\n", source);
+        }
+        if (callback->rdFlags.noUlv) {
+            auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
+            atyProps->setObject("PP_DisableULV", v1);
+            v1->release();
+            callback->appendLog("NootRX_fix: [%s] aty_properties: PP_DisableULV=1\n", source);
+        }
+        if (callback->rdFlags.noVActiveDram) {
+            auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
+            atyProps->setObject("DalDisableVActiveDramChange", v1);
+            v1->release();
+            callback->appendLog("NootRX_fix: [%s] aty_properties: DalDisableVActiveDramChange=1\n", source);
+        }
+        if (callback->rdFlags.noMpo) {
+            /*
+             * Decision record (v1.0.4 rejected by v1.0.5): AMD Display Core
+             * defines PipeSplitPolicy=1 as MPC_SPLIT_AVOID, so v1.0.4 tried
+             * DalForceSingleDispPipeSplit=0 plus that policy.  The exact board
+             * still logged both mpc2_assert_idle_mpcc warnings and reset after
+             * an IOAccelDisplayPipe timeout.  Keep the best observed v1.0.3
+             * value (1) and do not reintroduce DalPipeSplitPolicy.
+             */
+            auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
+            atyProps->setObject("DalForceSingleDispPipeSplit", v1);
+            v1->release();
+            callback->appendLog("NootRX_fix: [%s] aty_properties: DalForceSingleDispPipeSplit=1 (1.0.3 baseline)\n",
+                source);
+        }
+        if (callback->rdFlags.noStutter) {
+            auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
+            auto *v0 = OSNumber::withNumber(static_cast<UInt32>(0), 32);
+            atyProps->setObject("PP_DisableClockStretcher", v1);
+            atyProps->setObject("PP_Falcon_QuickTransition_Enable", v0);
+            atyProps->setObject("PP_DisableGFXCLKStutter", v1);
+            atyProps->setObject("PP_DisableFCLKStutter", v1);
+            atyProps->setObject("PP_DisableMCLKStutter", v1);
+            atyProps->setObject("PP_DisableDSCLKStutter", v1);
+            v1->release();
+            v0->release();
+            callback->appendLog("NootRX_fix: [%s] aty_properties: Stutter clocks disabled (1.0.3 baseline)\n", source);
+        }
+        if (callback->rdFlags.floorDpm) {
+            auto *v3 = OSNumber::withNumber(static_cast<UInt32>(3), 32);
+            atyProps->setObject("DalForceMinDpmLevel", v3);
+            v3->release();
+            callback->appendLog("NootRX_fix: [%s] aty_properties: DalForceMinDpmLevel=3 (DPM High floor)\n", source);
+        }
+    }
+    if (atyConfig && (callback->rdFlags.noMpo || callback->rdFlags.noStutter)) {
+        atyConfig->setObject("CFG_USE_STUTTER", kOSBooleanFalse);
+        atyConfig->setObject("CFG_USE_FBC", kOSBooleanFalse);
+        atyConfig->setObject("CFG_USE_CPT", kOSBooleanFalse);
+        callback->appendLog("NootRX_fix: [%s] aty_config: CFG_USE_STUTTER=false, CFG_USE_FBC=false, CFG_USE_CPT=false\n",
+            source);
+    }
+    if (nativePersonality) {
+        // Paired with NootRXNativeAcceleratorOverlay.  A v1.0.6 run is valid
+        // only when both markers and all effective values appear in IORegistry.
+        callback->dGPU->setProperty("NootRXNativeControllerOverlay", 1, 32);
+    }
+}
+
 bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) {
-    UInt32 driverCount = array->getCount();
+    /*
+     * The native path also shallow-clones the caller-owned array.  Each target
+     * personality is then deep-cloned below, so neither OSKext's source graph
+     * nor IOCatalogue's argument container is mutated.  The original function
+     * retains what it needs during registration; we release this private array
+     * only after addDrivers returns.
+     */
+    OSArray *privateArray = nullptr;
+    OSArray *workingArray = array;
+    if (callback->nativeNavi21Passthrough) {
+        privateArray = OSArray::withArray(array);
+        if (privateArray == nullptr) {
+            callback->appendLog("NootRX_fix: [NATIVE][ERROR] Could not clone addDrivers array; using Apple's unmodified catalogue\n");
+            return FunctionCast(wrapAddDrivers, callback->orgAddDrivers)(that, array, doNubMatching);
+        }
+        workingArray = privateArray;
+    }
+
+    UInt32 driverCount = workingArray->getCount();
     for (UInt32 driverIndex = 0; driverIndex < driverCount; driverIndex += 1) {
-        OSObject *object = array->getObject(driverIndex);
+        OSObject *object = workingArray->getObject(driverIndex);
         PANIC_COND(object == nullptr, "NootRX", "Critical error in addDrivers: Index is out of bounds.");
         auto *dict = OSDynamicCast(OSDictionary, object);
         if (dict == nullptr) { continue; }
+
+        /*
+         * Native passthrough overlays Apple's personalities before the
+         * original addDrivers starts matching.  Use OSCollection's deep copy
+         * and replace exactly the two target array entries: mutating an
+         * Apple-owned dictionary in place can unexpectedly affect another
+         * owner of that object, while a shallow OSDictionary copy would still
+         * share aty_properties/aty_config and defeat copy-on-write.
+         *
+         * copyCollection retains scalar OSNumber/OSBoolean values and clones
+         * nested collections recursively.  replaceObject retains the clone;
+         * releasing our creation reference afterward gives the array clear
+         * ownership.  Non-target entries and the array shape remain native;
+         * embedded XML is never parsed in this mode.
+         */
+        if (callback->nativeNavi21Passthrough) {
+            if (isNativeNavi21Personality(dict)) {
+                auto *collectionCopy = dict->copyCollection();
+                auto *copy = OSDynamicCast(OSDictionary, collectionCopy);
+                if (copy != nullptr) {
+                    patchDriverPersonality(copy, true);
+                    workingArray->replaceObject(driverIndex, copy);
+                    copy->release();
+                } else {
+                    if (collectionCopy != nullptr) { collectionCopy->release(); }
+                    // Leave Apple's unmodified entry intact instead of risking
+                    // a partial overlay or a boot panic.  IORegistry will then
+                    // expose the native values and make this test invalid.
+                    callback->appendLog("NootRX_fix: [NATIVE][ERROR] Could not clone target personality; leaving it unmodified\n");
+                }
+            }
+            continue;
+        }
+
         auto *bundleIdentifier = OSDynamicCast(OSString, dict->getObject("CFBundleIdentifier"));
         if (bundleIdentifier == nullptr || bundleIdentifier->getLength() == 0) { continue; }
         auto *bundleIdentifierCStr = bundleIdentifier->getCStringNoCopy();
@@ -364,121 +593,15 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                 PANIC_COND(drivers == nullptr, "NootRX", "Failed to cast %s driver data", bundleIdentifierCStr);
                 UInt32 injectedDriverCount = drivers->getCount();
 
-                array->ensureCapacity(driverCount + injectedDriverCount);
+                workingArray->ensureCapacity(driverCount + injectedDriverCount);
 
                 for (UInt32 injectedDriverIndex = 0; injectedDriverIndex < injectedDriverCount;
-                     injectedDriverIndex += 1) {
+                    injectedDriverIndex += 1) {
                     auto *driverObj = drivers->getObject(injectedDriverIndex);
                     if (auto *drvDict = OSDynamicCast(OSDictionary, driverObj)) {
-                        auto *ioClass = OSDynamicCast(OSString, drvDict->getObject("IOClass"));
-                        if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
-                                        strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
-                            if (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0) {
-                                /*
-                                 * Decision record (v1.0.5): restore an Apple Navi 21
-                                 * scheduler invariant lost by NootRX's replacement XML.
-                                 *
-                                 * Ventura 13.7.8 sets GPUTaskSingleChannel=1 on its
-                                 * native Navi 21 accelerator personality.  NootRX
-                                 * replaces that personality, but its embedded copy
-                                 * omitted the key.  The v1.0.4 diagnostic then captured
-                                 * an IOAccelDisplayPipe transaction timeout while every
-                                 * reported render/compute channel had CompletedTS equal
-                                 * to SubmittedTS.  Restore Apple's value so display flips
-                                 * use the channel model expected by the native 0x73BF/C0
-                                 * driver.  This does not disable Metal or OpenGL.
-                                 *
-                                 * Do not add an 8-bpc override here: AMD's pBPC=0x2 is
-                                 * COLOR_DEPTH_888 (8 bpc), and the LG EDID also declares
-                                 * an 8-bpc digital input.  macOS's ARGB2101010 label is
-                                 * the compositor framebuffer format, not proof of a
-                                 * 10-bpc DisplayPort link.
-                                 */
-                                auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
-                                drvDict->setObject("GPUTaskSingleChannel", v1);
-                                v1->release();
-                                callback->appendLog("NootRX_fix: [XML] AMDRadeonX6000: GPUTaskSingleChannel=1 (restore Ventura Navi21 default)\n");
-                            }
-                            if (callback->rdFlags.noDcc) {
-                                drvDict->setObject("GPUDCCDisplayable", kOSBooleanFalse);
-                                callback->appendLog("NootRX_fix: [XML] AMDRadeonX6000: GPUDCCDisplayable=false (DCC scanout disabled)\n");
-                            }
-                        }
-                        if (ioClass && strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AmdRadeonControllerNavi21") == 0) {
-                            auto *atyProps = OSDynamicCast(OSDictionary, drvDict->getObject("aty_properties"));
-                            auto *atyConfig = OSDynamicCast(OSDictionary, drvDict->getObject("aty_config"));
-                            if (atyProps) {
-                                if (callback->rdFlags.noGfxOff) {
-                                    auto *v0 = OSNumber::withNumber(static_cast<UInt32>(0), 32);
-                                    atyProps->setObject("PP_GfxOffControl", v0);
-                                    v0->release();
-                                    callback->appendLog("NootRX_fix: [XML] aty_properties: PP_GfxOffControl=0\n");
-                                }
-                                if (callback->rdFlags.noUlv) {
-                                    auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
-                                    atyProps->setObject("PP_DisableULV", v1);
-                                    v1->release();
-                                    callback->appendLog("NootRX_fix: [XML] aty_properties: PP_DisableULV=1\n");
-                                }
-                                if (callback->rdFlags.noVActiveDram) {
-                                    auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
-                                    atyProps->setObject("DalDisableVActiveDramChange", v1);
-                                    v1->release();
-                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalDisableVActiveDramChange=1\n");
-                                }
-                                if (callback->rdFlags.noMpo) {
-                                    /*
-                                     * Decision record (v1.0.4 rejected by v1.0.5):
-                                     * rd-nompo keeps its compatibility name, but the
-                                     * tested value must follow the 1.0.3 hardware
-                                     * baseline rather than an inferred Linux policy.
-                                     *
-                                     * AMD Display Core defines PipeSplitPolicy=1 as
-                                     * MPC_SPLIT_AVOID.  Its DCN 2.x validation code
-                                     * treats ForceSingleDispPipeSplit=true as a forced
-                                     * split.  Version 1.0.4 therefore tried 0 plus the
-                                     * avoid policy.  On this exact 0x73BF/C0 board that
-                                     * did not clear either mpc2_assert_idle_mpcc warning
-                                     * and produced an IOAccelDisplayPipe timeout at
-                                     * uptime 40.529987.  Since 1.0.3 with value 1 remains
-                                     * the best observed hardware baseline, restore it and
-                                     * remove DalPipeSplitPolicy so v1.0.5 changes only the
-                                     * missing GPUTaskSingleChannel invariant versus 1.0.3.
-                                     */
-                                    auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
-                                    atyProps->setObject("DalForceSingleDispPipeSplit", v1);
-                                    v1->release();
-                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceSingleDispPipeSplit=1 (restored 1.0.3 hardware baseline)\n");
-                                }
-                                if (callback->rdFlags.noStutter) {
-                                    auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
-                                    auto *v0 = OSNumber::withNumber(static_cast<UInt32>(0), 32);
-                                    atyProps->setObject("PP_DisableClockStretcher", v1);
-                                    atyProps->setObject("PP_Falcon_QuickTransition_Enable", v0);
-                                    atyProps->setObject("PP_DisableGFXCLKStutter", v1);
-                                    atyProps->setObject("PP_DisableFCLKStutter", v1);
-                                    atyProps->setObject("PP_DisableMCLKStutter", v1);
-                                    atyProps->setObject("PP_DisableDSCLKStutter", v1);
-                                    v1->release();
-                                    v0->release();
-                                    callback->appendLog("NootRX_fix: [XML] aty_properties: Stutter clocks disabled (safe baseline)\n");
-                                }
-                                if (callback->rdFlags.floorDpm) {
-                                    auto *v3 = OSNumber::withNumber(static_cast<UInt32>(3), 32);
-                                    atyProps->setObject("DalForceMinDpmLevel", v3);
-                                    v3->release();
-                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceMinDpmLevel=3 (DPM High floor)\n");
-                                }
-                            }
-                            if (atyConfig && (callback->rdFlags.noMpo || callback->rdFlags.noStutter)) {
-                                atyConfig->setObject("CFG_USE_STUTTER", kOSBooleanFalse);
-                                atyConfig->setObject("CFG_USE_FBC", kOSBooleanFalse);
-                                atyConfig->setObject("CFG_USE_CPT", kOSBooleanFalse);
-                                callback->appendLog("NootRX_fix: [XML] aty_config: CFG_USE_STUTTER=false, CFG_USE_FBC=false, CFG_USE_CPT=false\n");
-                            }
-                        }
+                        patchDriverPersonality(drvDict, false);
                     }
-                    array->setObject(driverIndex, drivers->getObject(injectedDriverIndex));
+                    workingArray->setObject(driverIndex, drivers->getObject(injectedDriverIndex));
                     driverIndex += 1;
                     driverCount += 1;
                 }
@@ -489,7 +612,9 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
         }
     }
 
-    return FunctionCast(wrapAddDrivers, callback->orgAddDrivers)(that, array, doNubMatching);
+    auto result = FunctionCast(wrapAddDrivers, callback->orgAddDrivers)(that, workingArray, doNubMatching);
+    if (privateArray != nullptr) { privateArray->release(); }
+    return result;
 }
 
 void NootRXMain::ensureRMMIO() {
@@ -515,6 +640,20 @@ void NootRXMain::processKext(KernelPatcher &patcher, size_t id, mach_vm_address_
             callback->appendLog("NootRX_fix: [AGDP] Applied board-id -> applehax patch for board %s\n",
                 BaseDeviceInfo::get().boardIdentifier);
         }
+    } else if (this->nativeNavi21Passthrough) {
+        /*
+         * v1.0.6 native passthrough intentionally leaves Apple's exact
+         * 0x73BF/C0 framebuffer, HWServices/HWLibs and accelerator binaries
+         * untouched.  Do not call ensureRMMIO here: doing so would only be a
+         * precursor to NootRX's capability/firmware substitution and would
+         * make this experiment unable to distinguish Apple's implementation
+         * from the prior releases.
+         *
+         * AGDP is handled above, not skipped.  The test EFI has WhateverGreen
+         * present but disabled, so its agdpmod=pikera boot argument cannot be
+         * relied upon to apply the policy patch.
+         */
+        return;
     } else if (this->x6000fb.processKext(patcher, id, slide, size)) {
         DBGLOG("NootRX", "Processed Framebuffer");
     } else if (this->hwlibs.processKext(patcher, id, slide, size)) {
