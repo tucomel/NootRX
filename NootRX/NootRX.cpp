@@ -435,6 +435,22 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                          * already showed UCLK near its high state and did not
                          * capture the pre-reset transition.  Roll back to the
                          * exact 1.0.3 binary/config before any further A/B test.
+                         *
+                         * Physical VBIOS A/B result (2026-09-13 03:09): the
+                         * exact 1.0.3 binary/config on the Red Devil's SILENT
+                         * switch position remained at the approximately 99.5%
+                         * artifact reduction of the best baseline, with fewer
+                         * visible fragments than OC.  Geekbench Metal scored
+                         * 198K.  The diagnostic captured about 151 seconds and
+                         * contained no DisplayPipe timeout, Restart Channel,
+                         * GPU-restart attempt, or VM_FAULT.  Treat SILENT plus
+                         * 1.0.3 as the preferred stability candidate, not as a
+                         * proven fix: residual artifacts remain and this short
+                         * capture cannot establish long-term reset stability.
+                         * Require an idle/load/idle soak before accepting it.
+                         * The reported ROM string stayed 113-D41201-XT, so use
+                         * the physical switch position—not that string—to
+                         * identify which Red Devil policy was tested.
                          */
                         if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
                                         strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
