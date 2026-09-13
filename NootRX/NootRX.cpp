@@ -373,6 +373,32 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                         auto *ioClass = OSDynamicCast(OSString, drvDict->getObject("IOClass"));
                         if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
                                         strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
+                            if (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0) {
+                                /*
+                                 * Decision record (v1.0.5): restore an Apple Navi 21
+                                 * scheduler invariant lost by NootRX's replacement XML.
+                                 *
+                                 * Ventura 13.7.8 sets GPUTaskSingleChannel=1 on its
+                                 * native Navi 21 accelerator personality.  NootRX
+                                 * replaces that personality, but its embedded copy
+                                 * omitted the key.  The v1.0.4 diagnostic then captured
+                                 * an IOAccelDisplayPipe transaction timeout while every
+                                 * reported render/compute channel had CompletedTS equal
+                                 * to SubmittedTS.  Restore Apple's value so display flips
+                                 * use the channel model expected by the native 0x73BF/C0
+                                 * driver.  This does not disable Metal or OpenGL.
+                                 *
+                                 * Do not add an 8-bpc override here: AMD's pBPC=0x2 is
+                                 * COLOR_DEPTH_888 (8 bpc), and the LG EDID also declares
+                                 * an 8-bpc digital input.  macOS's ARGB2101010 label is
+                                 * the compositor framebuffer format, not proof of a
+                                 * 10-bpc DisplayPort link.
+                                 */
+                                auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
+                                drvDict->setObject("GPUTaskSingleChannel", v1);
+                                v1->release();
+                                callback->appendLog("NootRX_fix: [XML] AMDRadeonX6000: GPUTaskSingleChannel=1 (restore Ventura Navi21 default)\n");
+                            }
                             if (callback->rdFlags.noDcc) {
                                 drvDict->setObject("GPUDCCDisplayable", kOSBooleanFalse);
                                 callback->appendLog("NootRX_fix: [XML] AMDRadeonX6000: GPUDCCDisplayable=false (DCC scanout disabled)\n");
@@ -402,31 +428,27 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                 }
                                 if (callback->rdFlags.noMpo) {
                                     /*
-                                     * Decision record (v1.0.4): rd-nompo is a
-                                     * compatibility name for avoiding MPC pipe split.
+                                     * Decision record (v1.0.4 rejected by v1.0.5):
+                                     * rd-nompo keeps its compatibility name, but the
+                                     * tested value must follow the 1.0.3 hardware
+                                     * baseline rather than an inferred Linux policy.
                                      *
                                      * AMD Display Core defines PipeSplitPolicy=1 as
                                      * MPC_SPLIT_AVOID.  Its DCN 2.x validation code
-                                     * turns ForceSingleDispPipeSplit=true into a forced
-                                     * two-DPP/MPCC split for a single display.  The
-                                     * previous value of 1 therefore did the opposite of
-                                     * its old comment and matched the observed
-                                     * mpc2_assert_idle_mpcc timeout.  Apple's own Navi 14
-                                     * personality also pairs ForceSingleDispPipeSplit=0
-                                     * with PipeSplitPolicy=1.  This same pair existed on
-                                     * the side-branch v1.0.1-pipe-split-fix, but that
-                                     * branch was never an ancestor of the 1.0.3 DCC fix.
-                                     * Version 1.0.4 deliberately combines both fixes.
-                                     * Keep both values explicit so a later driver default
-                                     * cannot re-enable split.
+                                     * treats ForceSingleDispPipeSplit=true as a forced
+                                     * split.  Version 1.0.4 therefore tried 0 plus the
+                                     * avoid policy.  On this exact 0x73BF/C0 board that
+                                     * did not clear either mpc2_assert_idle_mpcc warning
+                                     * and produced an IOAccelDisplayPipe timeout at
+                                     * uptime 40.529987.  Since 1.0.3 with value 1 remains
+                                     * the best observed hardware baseline, restore it and
+                                     * remove DalPipeSplitPolicy so v1.0.5 changes only the
+                                     * missing GPUTaskSingleChannel invariant versus 1.0.3.
                                      */
-                                    auto *v0 = OSNumber::withNumber(static_cast<UInt32>(0), 32);
                                     auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
-                                    atyProps->setObject("DalForceSingleDispPipeSplit", v0);
-                                    atyProps->setObject("DalPipeSplitPolicy", v1);
-                                    v0->release();
+                                    atyProps->setObject("DalForceSingleDispPipeSplit", v1);
                                     v1->release();
-                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceSingleDispPipeSplit=0, DalPipeSplitPolicy=1 (avoid MPC split)\n");
+                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceSingleDispPipeSplit=1 (restored 1.0.3 hardware baseline)\n");
                                 }
                                 if (callback->rdFlags.noStutter) {
                                     auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);

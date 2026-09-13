@@ -41,9 +41,9 @@ struct RedDevilFlags {
     bool noGfxOff {false};
     bool noUlv {false};
     bool noVActiveDram {false};
-    // The rd-nompo key name is retained for EFI compatibility.  It actually
-    // selects the no-pipe-split policy documented in NootRX.cpp; it does not
-    // claim to disable every macOS overlay path.
+    // The rd-nompo key name is retained for EFI compatibility.  Its tested
+    // Apple-DCN pipe behavior is documented in NootRX.cpp; it does not claim
+    // to disable every macOS overlay path.
     bool noMpo {false};
     bool noStutter {false};
     bool floorDpm {false};

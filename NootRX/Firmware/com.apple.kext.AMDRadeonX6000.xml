@@ -8,6 +8,8 @@
 		<integer>0</integer>
 		<key>GpuDebugPolicy</key>
 		<integer>0</integer>
+		<key>GPUTaskSingleChannel</key>
+		<integer>1</integer>
 		<key>IOClass</key>
 		<string>AMDRadeonX6000_AMDNavi21GraphicsAccelerator</string>
 		<key>IODVDBundleName</key>
