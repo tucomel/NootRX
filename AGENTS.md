@@ -145,8 +145,14 @@ Resultados da baseline:
 | `v1.0.11-force8bpc-test` | `7b1446a` | Remapeamento coerente de IOFramebuffer, mas não do link DAL. |
 | `experiment-force8bpc-ineffective-slow-failed` | `94ad3f4` | Registro definitivo da rejeição da 1.0.11. |
 | `v1.0.12-cfgnodcc-test` | `d742456` | Variável única: CFG_NO_DCC=true no aty_config para desativar DCC no controlador DCN (consumidor). |
+| `experiment-cfgnodcc-failed` | `d742456` | Rejeitado conclusivamente por aumento severo de fragmentos no desktop e corrupção persistente. |
 
 ## Experimentos rejeitados — não repetir nem combinar
+
+### DCC no Framebuffer (CFG_NO_DCC)
+
+- `v1.0.12-cfgnodcc-test`: Injetar `CFG_NO_DCC=true` no `aty_config` para desativar o decodificador DCC no controlador de display causou regressão severa: fragmentos por toda a interface, pior que a baseline 1.0.3, e fragmentos estáticos persistiram mesmo durante o Heaven até o cursor do mouse redesenhar por cima.
+- Conclusão: O controlador de display (DCN) PRECISA manter a decodificação DCC ativa para os buffers gerados pela GPU; desativar no controlador quebra o layout de tiles. Nunca ative `CFG_NO_DCC=true`. Rollback imediato para 1.0.3.
 
 ### MCLK/PowerPlay
 
