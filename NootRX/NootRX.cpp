@@ -13,9 +13,21 @@
 static const char *pathAGDP = "/System/Library/Extensions/AppleGraphicsControl.kext/Contents/PlugIns/"
                               "AppleGraphicsDevicePolicy.kext/Contents/MacOS/AppleGraphicsDevicePolicy";
 
+static const char *pathAMDFramebuffer =
+    "/System/Library/Extensions/AMDFramebuffer.kext/Contents/MacOS/AMDFramebuffer";
+
 static KernelPatcher::KextInfo kextAGDP {
     "com.apple.driver.AppleGraphicsDevicePolicy",
     &pathAGDP,
+    1,
+    {},
+    {},
+    KernelPatcher::KextInfo::Unloaded,
+};
+
+static KernelPatcher::KextInfo kextAMDFramebuffer {
+    "com.apple.kext.AMDFramebuffer",
+    &pathAMDFramebuffer,
     1,
     {},
     {},
@@ -70,6 +82,10 @@ void NootRXMain::init() {
     }
 
     lilu.onKextLoadForce(&kextAGDP);
+    // AMDFramebuffer owns the output pixel-format tables patched by rd-force24.
+    // Register it unconditionally because the PCI property is parsed later in
+    // processPatcher; processKext leaves it byte-for-byte native unless enabled.
+    lilu.onKextLoadForce(&kextAMDFramebuffer);
 
     this->dyldpatches.init();
     this->x6000fb.init();
@@ -129,6 +145,16 @@ void NootRXMain::saveLogOnDisk(thread_call_param_t param0, thread_call_param_t) 
             buf[len] = '\0';
             IOSimpleLockUnlock(main->logLock);
 
+            /*
+             * Diagnostic limitation discovered after the 1.0.8 test: Lilu's
+             * writeBufferToFile does not guarantee truncation of an existing
+             * longer file. A short new boot log can therefore be followed by
+             * a stale tail from an older boot. Do not correlate entries after
+             * the fresh [INIT]/[FLAGS] section unless the collector removed the
+             * old file before boot. This experiment intentionally does not add
+             * kernel-side unlink/truncation logic, which would be an unrelated
+             * and riskier functional change to the display test.
+             */
             int ret = FileIO::writeBufferToFile("/var/log/NootRX_fix.log", buf, len);
             if (ret == 0) {
                 IOLog("NootRX_fix: Log file written to /var/log/NootRX_fix.log (%zu bytes)\n", len);
@@ -261,13 +287,14 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
     this->rdFlags.noStutter = checkFlag("rd-nostutter");
     this->rdFlags.floorDpm = checkFlag("rd-floordpm");
     this->rdFlags.noDcc = checkFlag("rd-nodcc");
+    this->rdFlags.force24Bpp = checkFlag("rd-force24");
     this->rdFlags.diag = checkFlag("rd-diag") || ADDPR(debugEnabled) || checkKernelArgument("-NRXDebug");
 
     this->appendLog("NootRX_fix: [INIT] Detected GPU 0x%04X:0x%02X\n", this->deviceId, this->pciRevision);
-    this->appendLog("NootRX_fix: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d diag=%d\n",
+    this->appendLog("NootRX_fix: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d force24=%d diag=%d\n",
                     this->rdFlags.noGfxOff, this->rdFlags.noUlv, this->rdFlags.noVActiveDram,
                     this->rdFlags.noMpo, this->rdFlags.noStutter, this->rdFlags.floorDpm,
-                    this->rdFlags.noDcc, this->rdFlags.diag);
+                    this->rdFlags.noDcc, this->rdFlags.force24Bpp, this->rdFlags.diag);
 
     this->dyldpatches.processPatcher(patcher);
 
@@ -382,13 +409,24 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                          *   artifact's cause.  Future experiments must start
                          *   from tag 1.0.3 and change one narrow mechanism.
                          *
-                         * First untested follow-up (research 2026-09-13):
-                         * restore upstream's MacPro7,1 exception around the
-                         * AGDP board-id patch, and change nothing else.  This
-                         * fork currently forces that patch even though every
-                         * captured boot reports five "vendor modeset callback
-                         * invalid sequence or interleaving" warnings.  Treat
-                         * this as a testable correlation, not a proven cause.
+                         * - v1.0.8 restored upstream's MacPro7,1 AGDP exception,
+                         *   but the same five vendor-modeset warnings remained;
+                         *   artifacts increased and a DisplayPipe timeout led
+                         *   to a GFX channel-51 reset. AGDP was therefore not
+                         *   the residual cause. Keep the 1.0.3 AGDP behaviour.
+                         *
+                         * Experiment 1.0.9 changes only output colour depth
+                         * relative to 1.0.3. The display is being selected as
+                         * 30-bit ARGB2101010 (pBPC=2), while WhateverGreen's
+                         * documented -rad24 workaround exists specifically for
+                         * distorted/blinking colour caused by bad 30-bit mode
+                         * selection. The user's controlled observation that
+                         * IINA+Heaven removes every artifact until Heaven exits
+                         * also points to a scanout/compositor mode transition.
+                         * rd-force24 ports that narrow upstream mechanism into
+                         * NootRX so WhateverGreen stays disabled and cannot
+                         * double-patch the same AMD stack. It does not touch
+                         * SMU/DPM or pre-training GDDR6 state.
                          */
                         if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
                                         strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
@@ -490,6 +528,12 @@ void NootRXMain::processKext(KernelPatcher &patcher, size_t id, mach_vm_address_
             callback->appendLog("NootRX_fix: [AGDP] Applied board-id -> applehax patch for board %s\n",
                 BaseDeviceInfo::get().boardIdentifier);
         }
+    } else if (kextAMDFramebuffer.loadIndex == id) {
+        if (this->rdFlags.force24Bpp) {
+            this->process24BitOutput(patcher, slide, size);
+        } else {
+            this->appendLog("NootRX_fix: [24BPP] Disabled; AMDFramebuffer output tables left native\n");
+        }
     } else if (this->x6000fb.processKext(patcher, id, slide, size)) {
         DBGLOG("NootRX", "Processed Framebuffer");
     } else if (this->hwlibs.processKext(patcher, id, slide, size)) {
@@ -497,6 +541,62 @@ void NootRXMain::processKext(KernelPatcher &patcher, size_t id, mach_vm_address_
     } else if (this->x6000.processKext(patcher, id, slide, size)) {
         DBGLOG("NootRX", "Processed Accelerator");
     }
+}
+
+void NootRXMain::process24BitOutput(KernelPatcher &patcher, mach_vm_address_t slide, size_t size) {
+    /*
+     * Narrow port of WhateverGreen's -rad24 implementation
+     * (RAD::process24BitOutput). AMDFramebuffer keeps a zero-terminated
+     * BITS_PER_COMPONENT table and two 30-bit RGB mask strings. Replacing
+     * every 10-bpc entry with 8 and both masks with 8:8:8 prevents
+     * ARGB2101010 selection while retaining the 32-bit framebuffer word
+     * (8 unused/alpha bits + 24 colour bits).
+     *
+     * This must remain opt-in: 10-bpc is valid on correctly negotiated links.
+     * It is enabled only for the 1.0.9 Red Devil diagnostic because the current
+     * LG link reports 30-bit and artifacts return exactly when a sustained 3D
+     * workload exits. Never combine this test with direct UCLK/MCLK locking;
+     * the v1.0.2 pre-training MCLK lock caused GDDR6 Long Training Failed.
+     */
+    auto *bitsPerComponent =
+        patcher.solveSymbol<int *>(kextAMDFramebuffer.loadIndex, "__ZL18BITS_PER_COMPONENT", slide, size);
+    if (bitsPerComponent == nullptr) {
+        patcher.clearError();
+        this->appendLog("NootRX_fix: [24BPP] ERROR: BITS_PER_COMPONENT symbol not found; no table change\n");
+        return;
+    }
+
+    size_t tenBitEntries = 0;
+    PANIC_COND(MachInfo::setKernelWriting(true, KernelPatcher::kernelWriteLock) != KERN_SUCCESS, "NootRX",
+        "Failed to enable kernel writing for 24-bit output table");
+    for (auto *entry = bitsPerComponent; *entry != 0; entry++) {
+        if (*entry == 10) {
+            *entry = 8;
+            tenBitEntries++;
+        }
+    }
+    MachInfo::setKernelWriting(false, KernelPatcher::kernelWriteLock);
+
+    static const UInt8 pixelMask30[] = "--RRRRRRRRRRGGGGGGGGGGBBBBBBBBBB";
+    static const UInt8 pixelMask24[] = "--------RRRRRRRRGGGGGGGGBBBBBBBB";
+    KernelPatcher::LookupPatch pixelPatch {
+        &kextAMDFramebuffer,
+        pixelMask30,
+        pixelMask24,
+        32,
+        2,
+    };
+    patcher.applyLookupPatch(&pixelPatch, reinterpret_cast<UInt8 *>(slide), size);
+    if (patcher.getError() != KernelPatcher::Error::NoError) {
+        patcher.clearError();
+        this->appendLog(
+            "NootRX_fix: [24BPP] ERROR: RGB mask patch failed after %zu table entries; do not qualify this build\n",
+            tenBitEntries);
+        return;
+    }
+
+    this->appendLog("NootRX_fix: [24BPP] Forced 8 bpc: changed %zu table entries and both RGB masks\n",
+        tenBitEntries);
 }
 
 UInt32 NootRXMain::readReg32(UInt32 reg) {

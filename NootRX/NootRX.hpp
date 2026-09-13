@@ -45,6 +45,7 @@ struct RedDevilFlags {
     bool noStutter {false};
     bool floorDpm {false};
     bool noDcc {false};
+    bool force24Bpp {false};
     bool diag {false};
 };
 
@@ -65,6 +66,7 @@ class NootRXMain {
     private:
     void ensureRMMIO();
     void processKext(KernelPatcher &patcher, size_t id, mach_vm_address_t slide, size_t size);
+    void process24BitOutput(KernelPatcher &patcher, mach_vm_address_t slide, size_t size);
 
     UInt32 readReg32(UInt32 reg);
     void writeReg32(UInt32 reg, UInt32 val);
