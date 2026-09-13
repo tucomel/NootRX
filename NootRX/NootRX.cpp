@@ -427,6 +427,31 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                          * NootRX so WhateverGreen stays disabled and cannot
                          * double-patch the same AMD stack. It does not touch
                          * SMU/DPM or pre-training GDDR6 state.
+                         *
+                         * v1.0.9 result (rejected, 2026-09-13): the flag was
+                         * parsed, but AMDFramebuffer never reached this plug-in
+                         * callback on the Navi21 boot. There was no [24BPP]
+                         * success/error marker and the display remained
+                         * ARGB2101010, so that run did not actually exercise
+                         * the intended patch. It repeated the same DisplayPipe
+                         * timeout and GFX-51 reset; the first pending command
+                         * belonged to IINA's GL context (VMID 9), submitted
+                         * about six seconds before the timeout. Do not infer
+                         * from this run that an applied 24-bit mode failed.
+                         * Also note that AMD's pBPC enum value 2 means 8 bpc;
+                         * ARGB2101010 is a compositor surface format and alone
+                         * does not prove a 10-bpc physical link.
+                         *
+                         * The next control must not be called "native
+                         * passthrough" inside NootRX. v1.0.7 still loaded this
+                         * plug-in, intercepted IOCatalogue, forced the rd-*
+                         * policy overlay and applied its own AGDP patch. A clean
+                         * native 0x73BF control disables both NootRX bundles and
+                         * every rd-* property, then enables only the existing
+                         * Lilu + WhateverGreen stack with agdpmod=pikera. That
+                         * configuration matches the documented Navi21 path and
+                         * is the only valid test of Apple's native binaries plus
+                         * WhateverGreen policy handling on this machine.
                          */
                         if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
                                         strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
