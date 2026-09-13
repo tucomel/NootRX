@@ -653,7 +653,7 @@
 				);
 				OTHER_LDFLAGS = "-static";
 				PRODUCT_BUNDLE_IDENTIFIER = org.ChefKiss.NootRX;
-				PRODUCT_NAME = NootRX_fix;
+				PRODUCT_NAME = Nootrx_rx6900xt_rd;
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				WRAPPER_EXTENSION = kext;
 			};
@@ -708,7 +708,7 @@
 				);
 				OTHER_LDFLAGS = "-static";
 				PRODUCT_BUNDLE_IDENTIFIER = org.ChefKiss.NootRX;
-				PRODUCT_NAME = NootRX_fix;
+				PRODUCT_NAME = Nootrx_rx6900xt_rd;
 				WRAPPER_EXTENSION = kext;
 			};
 			name = Release;
@@ -822,7 +822,7 @@
 				);
 				OTHER_LDFLAGS = "-static";
 				PRODUCT_BUNDLE_IDENTIFIER = org.ChefKiss.NootRX;
-				PRODUCT_NAME = NootRX_fix;
+				PRODUCT_NAME = Nootrx_rx6900xt_rd;
 				WRAPPER_EXTENSION = kext;
 			};
 			name = "Research Release";
@@ -936,7 +936,7 @@
 				);
 				OTHER_LDFLAGS = "-static";
 				PRODUCT_BUNDLE_IDENTIFIER = org.ChefKiss.NootRX;
-				PRODUCT_NAME = NootRX_fix;
+				PRODUCT_NAME = Nootrx_rx6900xt_rd;
 				WRAPPER_EXTENSION = kext;
 			};
 			name = Sanitize;

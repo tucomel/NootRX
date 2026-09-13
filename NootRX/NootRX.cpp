@@ -53,7 +53,7 @@ void NootRXMain::init() {
     DBGLOG("NootRX", "isVenturaAndLater: %s", this->attributes.isVenturaAndLater() ? "yes" : "no");
     DBGLOG("NootRX", "isSonoma1404AndLater: %s", this->attributes.isSonoma1404AndLater() ? "yes" : "no");
 
-    SYSLOG("NootRX_fix", "PowerColor RX 6900 XT Red Devil Fix initialized");
+    SYSLOG("Nootrx_rx6900xt_rd", "PowerColor RX 6900 XT Red Devil Fix initialized");
 
     callback = this;
 
@@ -129,11 +129,11 @@ void NootRXMain::saveLogOnDisk(thread_call_param_t param0, thread_call_param_t) 
             buf[len] = '\0';
             IOSimpleLockUnlock(main->logLock);
 
-            int ret = FileIO::writeBufferToFile("/var/log/NootRX_fix.log", buf, len);
+            int ret = FileIO::writeBufferToFile("/var/log/Nootrx_rx6900xt_rd.log", buf, len);
             if (ret == 0) {
-                IOLog("NootRX_fix: Log file written to /var/log/NootRX_fix.log (%zu bytes)\n", len);
+                IOLog("Nootrx_rx6900xt_rd: Log file written to /var/log/Nootrx_rx6900xt_rd.log (%zu bytes)\n", len);
             } else {
-                IOLog("NootRX_fix: FileIO::writeBufferToFile to /var/log/NootRX_fix.log returned %d\n", ret);
+                IOLog("Nootrx_rx6900xt_rd: FileIO::writeBufferToFile to /var/log/Nootrx_rx6900xt_rd.log returned %d\n", ret);
             }
             IOFree(buf, len + 1);
         }
@@ -264,8 +264,8 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
     this->rdFlags.coreFloor = checkFlag("rd-corefloor");
     this->rdFlags.diag = checkFlag("rd-diag") || ADDPR(debugEnabled) || checkKernelArgument("-NRXDebug");
 
-    this->appendLog("NootRX_fix: [INIT] Detected GPU 0x%04X:0x%02X\n", this->deviceId, this->pciRevision);
-    this->appendLog("NootRX_fix: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d corefloor=%d diag=%d\n",
+    this->appendLog("Nootrx_rx6900xt_rd: [INIT] Detected GPU 0x%04X:0x%02X\n", this->deviceId, this->pciRevision);
+    this->appendLog("Nootrx_rx6900xt_rd: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d corefloor=%d diag=%d\n",
                     this->rdFlags.noGfxOff, this->rdFlags.noUlv, this->rdFlags.noVActiveDram,
                     this->rdFlags.noMpo, this->rdFlags.noStutter, this->rdFlags.floorDpm,
                     this->rdFlags.noDcc, this->rdFlags.coreFloor, this->rdFlags.diag);
@@ -363,7 +363,7 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                         strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
                             if (callback->rdFlags.noDcc) {
                                 drvDict->setObject("GPUDCCDisplayable", kOSBooleanFalse);
-                                callback->appendLog("NootRX_fix: [XML] AMDRadeonX6000: GPUDCCDisplayable=false (DCC scanout disabled)\n");
+                                callback->appendLog("Nootrx_rx6900xt_rd: [XML] AMDRadeonX6000: GPUDCCDisplayable=false (DCC scanout disabled)\n");
                             }
                         }
                         if (ioClass && strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AmdRadeonControllerNavi21") == 0) {
@@ -374,25 +374,25 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                     auto *v0 = OSNumber::withNumber(static_cast<UInt32>(0), 32);
                                     atyProps->setObject("PP_GfxOffControl", v0);
                                     v0->release();
-                                    callback->appendLog("NootRX_fix: [XML] aty_properties: PP_GfxOffControl=0\n");
+                                    callback->appendLog("Nootrx_rx6900xt_rd: [XML] aty_properties: PP_GfxOffControl=0\n");
                                 }
                                 if (callback->rdFlags.noUlv) {
                                     auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
                                     atyProps->setObject("PP_DisableULV", v1);
                                     v1->release();
-                                    callback->appendLog("NootRX_fix: [XML] aty_properties: PP_DisableULV=1\n");
+                                    callback->appendLog("Nootrx_rx6900xt_rd: [XML] aty_properties: PP_DisableULV=1\n");
                                 }
                                 if (callback->rdFlags.noVActiveDram) {
                                     auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
                                     atyProps->setObject("DalDisableVActiveDramChange", v1);
                                     v1->release();
-                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalDisableVActiveDramChange=1\n");
+                                    callback->appendLog("Nootrx_rx6900xt_rd: [XML] aty_properties: DalDisableVActiveDramChange=1\n");
                                 }
                                 if (callback->rdFlags.noMpo) {
                                     auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
                                     atyProps->setObject("DalForceSingleDispPipeSplit", v1);
                                     v1->release();
-                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceSingleDispPipeSplit=1\n");
+                                    callback->appendLog("Nootrx_rx6900xt_rd: [XML] aty_properties: DalForceSingleDispPipeSplit=1\n");
                                 }
                                 if (callback->rdFlags.noStutter) {
                                     auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
@@ -405,13 +405,13 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                     atyProps->setObject("PP_DisableDSCLKStutter", v1);
                                     v1->release();
                                     v0->release();
-                                    callback->appendLog("NootRX_fix: [XML] aty_properties: Stutter clocks disabled (safe baseline)\n");
+                                    callback->appendLog("Nootrx_rx6900xt_rd: [XML] aty_properties: Stutter clocks disabled (safe baseline)\n");
                                 }
                                 if (callback->rdFlags.floorDpm) {
                                     auto *v3 = OSNumber::withNumber(static_cast<UInt32>(3), 32);
                                     atyProps->setObject("DalForceMinDpmLevel", v3);
                                     v3->release();
-                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceMinDpmLevel=3 (DPM High floor)\n");
+                                    callback->appendLog("Nootrx_rx6900xt_rd: [XML] aty_properties: DalForceMinDpmLevel=3 (DPM High floor)\n");
                                 }
                                 if (callback->rdFlags.coreFloor) {
                                     // Feature bit 12: FEATURE_DS_GFXCLK_BIT (Deep Sleep of GFXCLK / Core Clock -> 500 MHz floor)
@@ -438,7 +438,7 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                     auto *value = OSNumber::withNumber(disallowedFeatures, 64);
                                     atyProps->setObject("SMU_DisallowedFeatures", value);
                                     value->release();
-                                    callback->appendLog("NootRX_fix: [XML] aty_properties: SMU_DisallowedFeatures=0x%llX (was 0x%llX; 500MHz core + 0.800V ULV/Vmin + MMHUB PG disabled)\n",
+                                    callback->appendLog("Nootrx_rx6900xt_rd: [XML] aty_properties: SMU_DisallowedFeatures=0x%llX (was 0x%llX; 500MHz core + 0.800V ULV/Vmin + MMHUB PG disabled)\n",
                                                         disallowedFeatures, originalFeatures);
                                 }
                             }
@@ -446,7 +446,7 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                 atyConfig->setObject("CFG_USE_STUTTER", kOSBooleanFalse);
                                 atyConfig->setObject("CFG_USE_FBC", kOSBooleanFalse);
                                 atyConfig->setObject("CFG_USE_CPT", kOSBooleanFalse);
-                                callback->appendLog("NootRX_fix: [XML] aty_config: CFG_USE_STUTTER=false, CFG_USE_FBC=false, CFG_USE_CPT=false\n");
+                                callback->appendLog("Nootrx_rx6900xt_rd: [XML] aty_config: CFG_USE_STUTTER=false, CFG_USE_FBC=false, CFG_USE_CPT=false\n");
                             }
                         }
                     }
@@ -484,7 +484,7 @@ void NootRXMain::processKext(KernelPatcher &patcher, size_t id, mach_vm_address_
 
         DBGLOG("NootRX", "Processed Apple Graphics Device Policy");
         if (callback) {
-            callback->appendLog("NootRX_fix: [AGDP] Applied board-id -> applehax patch for board %s\n",
+            callback->appendLog("Nootrx_rx6900xt_rd: [AGDP] Applied board-id -> applehax patch for board %s\n",
                 BaseDeviceInfo::get().boardIdentifier);
         }
     } else if (this->x6000fb.processKext(patcher, id, slide, size)) {

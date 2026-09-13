@@ -27,9 +27,9 @@
 			<key>CFBundleIdentifier</key>
 			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 			<key>IOClass</key>
-			<string>NootRX_fix</string>
+			<string>Nootrx_rx6900xt_rd</string>
 			<key>IOMatchCategory</key>
-			<string>NootRX_fix</string>
+			<string>Nootrx_rx6900xt_rd</string>
 			<key>IOProviderClass</key>
 			<string>IOResources</string>
 			<key>IOResourceMatch</key>
