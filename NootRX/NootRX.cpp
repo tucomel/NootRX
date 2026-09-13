@@ -451,6 +451,24 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                          * The reported ROM string stayed 113-D41201-XT, so use
                          * the physical switch position—not that string—to
                          * identify which Red Devil policy was tested.
+                         *
+                         * Extended observation of that same boot (2026-09-13
+                         * 03:18): after roughly ten more minutes the user saw
+                         * the residual fragments diminish dramatically.  The
+                         * diagnostic reached 717 seconds of kernel uptime with
+                         * zero DisplayPipe timeout, channel/GPU restart,
+                         * VM_FAULT, hang, or GDDR6-training failure.  It did
+                         * contain two mpc2_assert_idle_mpcc warnings and 17
+                         * AGDP invalid-sequence warnings across mode changes;
+                         * all validations were accepted and none progressed to
+                         * a display timeout.  DRAM_CLK_CHANGE_WATERMARK_A also
+                         * recalculated to zero once without a failure, proving
+                         * that this log value alone is not a sufficient crash
+                         * indicator.  Do not target any of these warnings in
+                         * isolation.  This promotes 1.0.3 + physical SILENT
+                         * BIOS to the most stable observed configuration, but
+                         * residual artifacts and the short observation window
+                         * still prevent a claim of a complete or proven fix.
                          */
                         if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
                                         strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
