@@ -261,13 +261,15 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
     this->rdFlags.noStutter = checkFlag("rd-nostutter");
     this->rdFlags.floorDpm = checkFlag("rd-floordpm");
     this->rdFlags.noDcc = checkFlag("rd-nodcc");
+    this->rdFlags.coreFloor = checkFlag("rd-corefloor");
+    this->rdFlags.freeMem = checkFlag("rd-freemem");
     this->rdFlags.diag = checkFlag("rd-diag") || ADDPR(debugEnabled) || checkKernelArgument("-NRXDebug");
 
     this->appendLog("NootRX_fix: [INIT] Detected GPU 0x%04X:0x%02X\n", this->deviceId, this->pciRevision);
-    this->appendLog("NootRX_fix: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d diag=%d\n",
+    this->appendLog("NootRX_fix: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d corefloor=%d freemem=%d diag=%d\n",
                     this->rdFlags.noGfxOff, this->rdFlags.noUlv, this->rdFlags.noVActiveDram,
                     this->rdFlags.noMpo, this->rdFlags.noStutter, this->rdFlags.floorDpm,
-                    this->rdFlags.noDcc, this->rdFlags.diag);
+                    this->rdFlags.noDcc, this->rdFlags.coreFloor, this->rdFlags.freeMem, this->rdFlags.diag);
 
     this->dyldpatches.processPatcher(patcher);
 
@@ -406,11 +408,20 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                     v0->release();
                                     callback->appendLog("NootRX_fix: [XML] aty_properties: Stutter clocks disabled (safe baseline)\n");
                                 }
-                                if (callback->rdFlags.floorDpm) {
+                                if (callback->rdFlags.coreFloor) {
+                                    auto *v1 = OSNumber::withNumber(static_cast<UInt32>(1), 32);
+                                    atyProps->setObject("PP_GfxclkDeepSleepDisable", v1);
+                                    atyProps->setObject("PP_SclkDeepSleepDisable", v1);
+                                    v1->release();
+                                    callback->appendLog("NootRX_fix: [XML] aty_properties: PP_GfxclkDeepSleepDisable=1, PP_SclkDeepSleepDisable=1 (Core clock floor 500 MHz)\n");
+                                }
+                                if (callback->rdFlags.floorDpm && !callback->rdFlags.freeMem) {
                                     auto *v3 = OSNumber::withNumber(static_cast<UInt32>(3), 32);
                                     atyProps->setObject("DalForceMinDpmLevel", v3);
                                     v3->release();
                                     callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceMinDpmLevel=3 (DPM High floor)\n");
+                                } else if (callback->rdFlags.freeMem) {
+                                    callback->appendLog("NootRX_fix: [XML] aty_properties: Memory DPM 100% free (native scaling)\n");
                                 }
                             }
                             if (atyConfig && (callback->rdFlags.noMpo || callback->rdFlags.noStutter)) {

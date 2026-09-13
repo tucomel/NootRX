@@ -150,6 +150,7 @@ Resultados da baseline:
 | `experiment-noidlepower-failed` | `fca3c93` | Rejeitado conclusivamente por persistência de artefatos sob Heaven, piora após saída e crash do driver de vídeo ao encerrar gravação de tela (DisplayPipe stamp 57 timeout / Restart Channel GFX). |
 | `v1.0.14-floordpm4-test` | `c147899` | Variável única: DalForceMinDpmLevel=4 (1000 MHz / DPM Max floor) para eliminar oscilação 673-1000 MHz em idle. |
 | `experiment-floordpm4-failed` | `c147899` | Rejeitado conclusivamente: memória travou em 1000 MHz (1990 MHz efetivos), mas fragmentos permaneceram iguais; colisão de stamp entre screencapture e Heaven (timeout stamp 5643 / Restart Channel 4 ComputeUQ1). Prova que UCLK não é a causa raiz. |
+| `v1.0.15-corefloor500-test` | `0b1d76c` | Variável única: PP_GfxclkDeepSleepDisable=1 e PP_SclkDeepSleepDisable=1 (piso do Core Clock em 500 MHz / 0.800V) com memória 100% livre (sem DalForceMinDpmLevel). |
 
 ## Experimentos rejeitados — não repetir nem combinar
 
