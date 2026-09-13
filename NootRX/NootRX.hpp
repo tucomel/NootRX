@@ -46,6 +46,7 @@ struct RedDevilFlags {
     bool floorDpm {false};
     bool noDcc {false};
     bool noTwoStepPstate {false};
+    bool force8Bpc {false};
     bool diag {false};
 };
 

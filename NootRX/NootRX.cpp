@@ -262,13 +262,15 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
     this->rdFlags.floorDpm = checkFlag("rd-floordpm");
     this->rdFlags.noDcc = checkFlag("rd-nodcc");
     this->rdFlags.noTwoStepPstate = checkFlag("rd-no2step");
+    this->rdFlags.force8Bpc = checkFlag("rd-force8bpc");
     this->rdFlags.diag = checkFlag("rd-diag") || ADDPR(debugEnabled) || checkKernelArgument("-NRXDebug");
 
     this->appendLog("NootRX_fix: [INIT] Detected GPU 0x%04X:0x%02X\n", this->deviceId, this->pciRevision);
-    this->appendLog("NootRX_fix: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d no2step=%d diag=%d\n",
+    this->appendLog("NootRX_fix: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d no2step=%d force8bpc=%d diag=%d\n",
                     this->rdFlags.noGfxOff, this->rdFlags.noUlv, this->rdFlags.noVActiveDram,
                     this->rdFlags.noMpo, this->rdFlags.noStutter, this->rdFlags.floorDpm,
-                    this->rdFlags.noDcc, this->rdFlags.noTwoStepPstate, this->rdFlags.diag);
+                    this->rdFlags.noDcc, this->rdFlags.noTwoStepPstate, this->rdFlags.force8Bpc,
+                    this->rdFlags.diag);
 
     this->dyldpatches.processPatcher(patcher);
 
@@ -530,6 +532,43 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                          * was active in software until a cold-boot capture from
                          * the opposite position permits a binary/telemetry A/B.
                          * Never flash either image as part of this diagnosis.
+                         *
+                         * Ventura 22H730 8-bpc reverse engineering
+                         * (2026-09-13): the exact 373374976-byte
+                         * SystemKernelExtensions.kc has SHA-256
+                         * 865ee134f3004a2a1d02b3eb34df66fef502b9e0e93c80b65a8e26547554e234.
+                         * Its AMDRadeonX6000Framebuffer 4.1.4 image has UUID
+                         * E116BA99-722F-3D23-BC50-43C9564FADB7.  In that exact
+                         * image, AmdRadeonFramebuffer::getPixelInformation has
+                         * three coherent pixel records: depth 0 is 16-bpp/5-
+                         * bpc, depth 1 is 32-bpp/8-bpc with ARGB8888 masks, and
+                         * depth 2 is 32-bpp/10-bpc with ARGB2101010 masks.  The
+                         * corresponding tables are at VM 0xC892370..0xC8923C0.
+                         * setDisplayMode(mode, depth) calls this method through
+                         * vtable slot 0x9E8, consumes the returned complete
+                         * IOPixelInformation, and stores the same depth index in
+                         * framebuffer state at offset 0x81E4.
+                         *
+                         * Consequently, never patch only BITS_PER_COMPONENT:
+                         * that would leave pixel format, masks, mode state, and
+                         * hardware programming disagreeing.  WhateverGreen's
+                         * -rad24 implementation is not a Navi21 solution here:
+                         * it forces/patches legacy AMDFramebuffer, which never
+                         * loads on this path.  The three same-named arrays found
+                         * in AMDSupport are line-buffer validation inputs; the
+                         * observed direct reference in
+                         * AtiLineBuffer::ValidateLineBufferForSinglePath is not
+                         * output-format selection and must remain untouched.
+                         *
+                         * v1.0.11 is therefore one isolated, reversible test.
+                         * With rd-force8bpc present, X6000FB routes both public
+                         * entry points and aliases requested depth 2 to the
+                         * driver's native depth-1 record.  Independent pixel-
+                         * information queries and the actual mode set then see
+                         * the same 8-bpc format while retaining the 32-bit row
+                         * stride.  No clocks, SMU features, timings, DCC policy,
+                         * or 1.0.3 display properties are changed.  Never enable
+                         * rd-no2step with this experiment; that test is rejected.
                          */
                         if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
                                         strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {

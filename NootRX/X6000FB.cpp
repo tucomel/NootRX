@@ -9,6 +9,10 @@
 static const char *pathRadeonX6000Framebuffer =
     "/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext/Contents/MacOS/AMDRadeonX6000Framebuffer";
 
+// Native 22H730 getPixelInformation table indices, not nominal bits-per-pixel values.
+static constexpr IOIndex kNative8BpcDepth = 1;
+static constexpr IOIndex kNative10BpcDepth = 2;
+
 static KernelPatcher::KextInfo kextRadeonX6000Framebuffer {
     "com.apple.kext.AMDRadeonX6000Framebuffer",
     &pathRadeonX6000Framebuffer,
@@ -42,6 +46,28 @@ bool X6000FB::processKext(KernelPatcher &patcher, size_t id, mach_vm_address_t s
                 wrapGetEnumeratedRevision};
             PANIC_COND(!request.route(patcher, id, slide, size), "X6000FB",
                 "Failed to route getEnumeratedRevisionNumber");
+        }
+
+        if (NootRXMain::callback->rdFlags.force8Bpc) {
+            /*
+             * 22H730 keeps the depth index in setDisplayMode and obtains the
+             * complete pixel record through getPixelInformation.  Route both
+             * or neither: changing only one can make IOFramebuffer allocate an
+             * ARGB2101010 surface while DAL programs ARGB8888 (or vice versa),
+             * which would create the exact class of corruption under test.
+             * KernelPatcher resolves every symbol in routeMultiple before it
+             * writes either prologue, so an unsupported driver fails closed.
+             */
+            KernelPatcher::RouteRequest requests[] = {
+                {"__ZN35AMDRadeonX6000_AmdRadeonFramebuffer14setDisplayModeEii", wrapSetDisplayMode,
+                    this->orgSetDisplayMode},
+                {"__ZN35AMDRadeonX6000_AmdRadeonFramebuffer19getPixelInformationEiiiP18IOPixelInformation",
+                    wrapGetPixelInformation, this->orgGetPixelInformation},
+            };
+            PANIC_COND(!patcher.routeMultiple(id, requests, slide, size), "X6000FB",
+                "Failed to route the coherent 8-bpc mode pair");
+            NootRXMain::callback->appendLog(
+                "NootRX_fix: [8BPC] Routed setDisplayMode + getPixelInformation (depth 2 -> 1)\n");
         }
 
         if (ADDPR(debugEnabled)) {
@@ -111,6 +137,23 @@ bool X6000FB::wrapInitWithPciInfo(void *that, void *pciDevice) {
     getMember<UInt64>(that, 0x28) = 0xFFFFFFFFFFFFFFFF;    // Enable all log types
     getMember<UInt32>(that, 0x30) = 0xFF;                  // Enable all log severities
     return ret;
+}
+
+IOReturn X6000FB::wrapSetDisplayMode(void *that, IODisplayModeID displayMode, IOIndex depth) {
+    const auto nativeDepth = depth == kNative10BpcDepth ? kNative8BpcDepth : depth;
+    if (nativeDepth != depth) {
+        NootRXMain::callback->appendLog(
+            "NootRX_fix: [8BPC] setDisplayMode mode=0x%X remapped depth %d -> %d\n",
+            static_cast<UInt32>(displayMode), depth, nativeDepth);
+    }
+    return FunctionCast(wrapSetDisplayMode, callback->orgSetDisplayMode)(that, displayMode, nativeDepth);
+}
+
+IOReturn X6000FB::wrapGetPixelInformation(void *that, IODisplayModeID displayMode, IOIndex depth, IOIndex aperture,
+    IOPixelInformation *pixelInfo) {
+    const auto nativeDepth = depth == kNative10BpcDepth ? kNative8BpcDepth : depth;
+    return FunctionCast(wrapGetPixelInformation, callback->orgGetPixelInformation)(
+        that, displayMode, nativeDepth, aperture, pixelInfo);
 }
 
 void X6000FB::wrapDoGPUPanic(void *, char const *fmt, ...) {

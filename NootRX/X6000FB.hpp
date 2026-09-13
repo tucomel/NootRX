@@ -4,6 +4,7 @@
 #pragma once
 #include <Headers/kern_patcher.hpp>
 #include <Headers/kern_util.hpp>
+#include <IOKit/graphics/IOFramebuffer.h>
 
 class X6000FB {
     static X6000FB *callback;
@@ -14,9 +15,14 @@ class X6000FB {
 
     private:
     mach_vm_address_t orgInitWithPciInfo {0};
+    mach_vm_address_t orgSetDisplayMode {0};
+    mach_vm_address_t orgGetPixelInformation {0};
 
     static UInt32 wrapGetEnumeratedRevision(void *that);
     static bool wrapInitWithPciInfo(void *that, void *pciDevice);
+    static IOReturn wrapSetDisplayMode(void *that, IODisplayModeID displayMode, IOIndex depth);
+    static IOReturn wrapGetPixelInformation(void *that, IODisplayModeID displayMode, IOIndex depth, IOIndex aperture,
+        IOPixelInformation *pixelInfo);
     static void wrapDoGPUPanic(void *that, char const *fmt, ...);
     static void wrapDmLoggerWrite(void *logger, const UInt32 logType, const char *fmt, ...);
 };
