@@ -11,7 +11,7 @@ O Ventura não é, por si só, incompatível com Navi 21: a Apple dá suporte à
 
 A baseline 1.0.3 continua sendo o único ponto seguro. Ela eliminou aproximadamente 99,5% dos artefatos ao desativar `GPUDCCDisplayable`, sem sacrificar o desempenho. As versões posteriores que alteraram VActive, pipe split, canal de tarefas ou fizeram passthrough nativo foram piores e estão formalmente rejeitadas no comentário de decisão em `NootRX/NootRX.cpp`.
 
-O próximo experimento de código deve alterar uma única diferença ainda não testada: restaurar a exceção oficial que impede o patch de `AppleGraphicsDevicePolicy` no SMBIOS `MacPro7,1`. O nosso fork removeu essa exceção e força a substituição `board-id` → `board-ix` em todos os Macs. O NootRX oficial evita explicitamente esse patch em `MacPro7,1`.[^4] Em todos os cinco boots arquivados do fork, o kernel registrou cinco ocorrências de `vendor modeset callback invalid sequence or interleaving!!`. Isso não prova causalidade, mas é a correlação mais direta e o desvio mais estreito em relação ao upstream.
+O próximo experimento de código deve alterar uma única diferença ainda não testada: restaurar a exceção oficial que impede o patch de `AppleGraphicsDevicePolicy` no SMBIOS `MacPro7,1`. O nosso fork removeu essa exceção e força a substituição `board-id` → `board-ix` em todos os Macs. O NootRX oficial evita explicitamente esse patch em `MacPro7,1`.[^4] Em todos os seis boots arquivados do fork, o kernel registrou cinco ocorrências de `vendor modeset callback invalid sequence or interleaving!!`. Isso não prova causalidade, mas é a correlação mais direta e o desvio mais estreito em relação ao upstream.
 
 Não há base técnica honesta para prometer “100%” antes desse teste e de uma validação prolongada. O objetivo correto é chegar a zero artefatos e zero reinicializações observadas em uma matriz de testes reproduzível, sem declarar sucesso com base em poucos minutos de desktop ou benchmark.
 
@@ -58,7 +58,20 @@ if (strncmp("Mac-27AD2F918AE68F61", BaseDeviceInfo::get().boardIdentifier, 21) =
 
 O fork da baseline 1.0.3 substituiu-a por aplicação incondicional do patch, sob a suposição de que uma Navi comercial precisaria disso. Essa suposição não foi validada e contradiz a decisão específica do mantenedor para `MacPro7,1`.[^4] O boot-arg `agdpmod=pikera` presente no `config.plist` não é processado pelo NootRX; com WhateverGreen desativado, é o código incondicional do fork que altera o binário AGDP. No WhateverGreen, `pikera` significa exatamente trocar `board-id` por `board-ix`, enquanto `agdpmod=ignore` desativa esses patches.[^14]
 
-O aviso `vendor modeset callback invalid sequence or interleaving!!` aparece cinco vezes em cada um dos cinco diagnósticos arquivados. Como o aviso é emitido pelo AGDP durante validação e callback de modeset, restaurar a exceção oficial é o primeiro teste de melhor relação entre evidência e risco.
+O aviso `vendor modeset callback invalid sequence or interleaving!!` aparece cinco vezes em cada um dos seis diagnósticos arquivados. Como o aviso é emitido pelo AGDP durante validação e callback de modeset, restaurar a exceção oficial é o primeiro teste de melhor relação entre evidência e risco.
+
+### Rechecagem limpa da 1.0.3 em 2026-09-13 01:34
+
+O binário no EFI foi confirmado como a baseline pelo SHA-256 `fc17f9d4bb9b01a2a8ffb6cd81e967538a4a81694f3b09582d1d58e429ff4629` e MD5 `a7ed288083b54817460828db7cc58c4b`. O diagnóstico foi preservado em `../backups/diagnostico/20260913-0134-baseline-103-recheck`.
+
+No instante da coleta, o boot a 1920×1080/100 Hz/30-bit tinha:
+
+- zero `gpuRestart`, VM fault e timeout de `IOAccelDisplayPipe`;
+- dois timeouts `mpc2_assert_idle_mpcc` durante a programação do display;
+- cinco avisos AGDP de sequência/interleaving;
+- `GPUDCCDisplayable=false` e todos os flags da 1.0.3 efetivamente aplicados.
+
+Esse resultado separa novamente a baseline das regressões catastróficas posteriores: ela recupera estabilidade, mas os dois sinais do caminho de display permanecem mensuráveis.
 
 ### Profundidade, resolução e frequência ainda são discriminadores
 
