@@ -407,10 +407,10 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                     callback->appendLog("NootRX_fix: [XML] aty_properties: Stutter clocks disabled (safe baseline)\n");
                                 }
                                 if (callback->rdFlags.floorDpm) {
-                                    auto *v4 = OSNumber::withNumber(static_cast<UInt32>(4), 32);
-                                    atyProps->setObject("DalForceMinDpmLevel", v4);
-                                    v4->release();
-                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceMinDpmLevel=4 (DPM Max floor)\n");
+                                    auto *v3 = OSNumber::withNumber(static_cast<UInt32>(3), 32);
+                                    atyProps->setObject("DalForceMinDpmLevel", v3);
+                                    v3->release();
+                                    callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceMinDpmLevel=3 (DPM High floor)\n");
                                 }
                             }
                             if (atyConfig && (callback->rdFlags.noMpo || callback->rdFlags.noStutter)) {

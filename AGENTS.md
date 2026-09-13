@@ -149,8 +149,14 @@ Resultados da baseline:
 | `v1.0.13-noidlepower-test` | `fca3c93` | Variável única: DalDisableIdlePowerOptimizations=1 para impedir power gating de front-ends DCN e timeouts do MPCC. |
 | `experiment-noidlepower-failed` | `fca3c93` | Rejeitado conclusivamente por persistência de artefatos sob Heaven, piora após saída e crash do driver de vídeo ao encerrar gravação de tela (DisplayPipe stamp 57 timeout / Restart Channel GFX). |
 | `v1.0.14-floordpm4-test` | `c147899` | Variável única: DalForceMinDpmLevel=4 (1000 MHz / DPM Max floor) para eliminar oscilação 673-1000 MHz em idle. |
+| `experiment-floordpm4-failed` | `c147899` | Rejeitado conclusivamente: memória travou em 1000 MHz (1990 MHz efetivos), mas fragmentos permaneceram iguais; colisão de stamp entre screencapture e Heaven (timeout stamp 5643 / Restart Channel 4 ComputeUQ1). Prova que UCLK não é a causa raiz. |
 
 ## Experimentos rejeitados — não repetir nem combinar
+
+### DalForceMinDpmLevel=4 (v1.0.14)
+
+- `v1.0.14-floordpm4-test`: Injetar `DalForceMinDpmLevel=4` travou o clock de memória em 1000 MHz real (1990 MHz efetivo) no macOS conforme confirmado pelo IORegistry. No entanto, os fragmentos residuais de 0.5% continuaram inalterados. Ao iniciar o Heaven enquanto gravava a tela, o driver congelou brevemente e abortou a gravação com timeout de sincronização (`waitForStamp timeout stamp 5643`, `Restart Channel: 4 ComputeUQ1`).
+- Conclusão: O clock de memória (UCLK) NÃO é o culpado pelos fragmentos (no Windows a memória roda a 8-14 MHz em idle com zero fragmentos). Travar a memória no teto aumenta consumo (40W) e temperatura (61°C) sem resolver o problema. Rollback para DalForceMinDpmLevel=3.
 
 ### DalDisableIdlePowerOptimizations (v1.0.13)
 
