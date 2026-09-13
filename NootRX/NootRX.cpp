@@ -358,6 +358,59 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                     auto *driverObj = drivers->getObject(injectedDriverIndex);
                     if (auto *drvDict = OSDynamicCast(OSDictionary, driverObj)) {
                         auto *ioClass = OSDynamicCast(OSString, drvDict->getObject("IOClass"));
+                        /*
+                         * Decision record after the 1.0.3 baseline tests
+                         * (2026-09-12/13, Ventura 13.7.8 22H730, Red Devil
+                         * 6900 XT 1002:73BF/C0 + 148C:2408): keep this full
+                         * NootRX driver path and its 1.0.3 display properties.
+                         * It is the only measured configuration that remained
+                         * usable and removed approximately 99.5% of artifacts.
+                         *
+                         * Do not repeat the rejected experiments:
+                         * - PP_MclkDpmDisabled/CFG_FORCEMAXDPM prevented the
+                         *   mandatory cold-boot GDDR6 training and panicked.
+                         * - Native VActive DRAM changes caused repeated
+                         *   IOAccelDisplayPipe timeouts and GFX channel resets.
+                         * - Avoiding pipe split caused yellow screens/resets.
+                         * - Restoring GPUTaskSingleChannel in isolation did not
+                         *   change the artifacts or reset signature.
+                         * - v1.0.7's apparent native Navi21 passthrough was
+                         *   dramatically worse, but was not a valid native
+                         *   control: NootRX was still loaded, replacing driver
+                         *   catalogue entries/properties and patching AGDP.
+                         * - v1.0.8 restored the upstream MacPro7,1 AGDP
+                         *   exception; artifacts increased and GFX reset.
+                         * - v1.0.9 attempted the WEG-style 24-bpp table patch,
+                         *   but AMDFramebuffer never loaded on this Navi21
+                         *   path. No [24BPP] marker appeared and ARGB2101010
+                         *   remained active, so that run did not test 24 bpp.
+                         * - v1.0.10 tested SMU_DisallowedFeatures bit 46
+                         *   (FEATURE_2_STEP_PSTATE); caused yellow screen and
+                         *   DisplayPipe timeout at 50.6s. REJECTED.
+                         * - v1.0.11 remapped getPixelInformation depth 2->1
+                         *   (8-bpc); surface reported ARGB8888 in system_profiler
+                         *   but DAL and AGDP remained at 10-bpc (pBPC=2). Did
+                         *   not cure residual artifacts and delayed boot. REJECTED.
+                         *
+                         * v1.0.12 single-variable experiment (2026-09-13):
+                         * Reverse-engineering of Ventura 22H730 AMDRadeonX6000Framebuffer
+                         * revealed that v1.0.3's GPUDCCDisplayable=false only disabled
+                         * DCC on the producer side (Metal/accelerator surface allocation).
+                         * The consumer side (Display Core / DCN controller) maintains its
+                         * own DCC capability flag: bit 16 of AmdProjectFeatures, queried
+                         * by supportsFeature(0x10). When bit 16 is 1 (the default),
+                         * AmdRadeonFramebuffer::enableController sets bit 9 of 0x89A4
+                         * and callPlatformFunctionFromDrvr negotiates DCC surface parameters
+                         * with the accelerator.
+                         *
+                         * The Apple driver natively parses "CFG_NO_DCC" from aty_config:
+                         * when present and true, readRegistryPropertiesEv clears bit 16,
+                         * causing supportsFeature(0x10) to return false. This cleanly
+                         * bypasses the DCC platform negotiation and disables DCC decoding
+                         * in the DCN display controller, closing the loop with the 1.0.3
+                         * GPUDCCDisplayable=false fix without touching clocks, MCLK training,
+                         * or pipe splitting.
+                         */
                         if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
                                         strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
                             if (callback->rdFlags.noDcc) {
@@ -365,7 +418,8 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                 callback->appendLog("NootRX_fix: [XML] AMDRadeonX6000: GPUDCCDisplayable=false (DCC scanout disabled)\n");
                             }
                         }
-                        if (ioClass && strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AmdRadeonControllerNavi21") == 0) {
+                        if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AmdRadeonControllerNavi21") == 0 ||
+                                        strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AmdRadeonControllerNavi23") == 0)) {
                             auto *atyProps = OSDynamicCast(OSDictionary, drvDict->getObject("aty_properties"));
                             auto *atyConfig = OSDynamicCast(OSDictionary, drvDict->getObject("aty_config"));
                             if (atyProps) {
@@ -413,11 +467,17 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                     callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceMinDpmLevel=3 (DPM High floor)\n");
                                 }
                             }
-                            if (atyConfig && (callback->rdFlags.noMpo || callback->rdFlags.noStutter)) {
-                                atyConfig->setObject("CFG_USE_STUTTER", kOSBooleanFalse);
-                                atyConfig->setObject("CFG_USE_FBC", kOSBooleanFalse);
-                                atyConfig->setObject("CFG_USE_CPT", kOSBooleanFalse);
-                                callback->appendLog("NootRX_fix: [XML] aty_config: CFG_USE_STUTTER=false, CFG_USE_FBC=false, CFG_USE_CPT=false\n");
+                            if (atyConfig) {
+                                if (callback->rdFlags.noMpo || callback->rdFlags.noStutter) {
+                                    atyConfig->setObject("CFG_USE_STUTTER", kOSBooleanFalse);
+                                    atyConfig->setObject("CFG_USE_FBC", kOSBooleanFalse);
+                                    atyConfig->setObject("CFG_USE_CPT", kOSBooleanFalse);
+                                    callback->appendLog("NootRX_fix: [XML] aty_config: CFG_USE_STUTTER=false, CFG_USE_FBC=false, CFG_USE_CPT=false\n");
+                                }
+                                if (callback->rdFlags.noDcc) {
+                                    atyConfig->setObject("CFG_NO_DCC", kOSBooleanTrue);
+                                    callback->appendLog("NootRX_fix: [XML] aty_config: CFG_NO_DCC=true (DCN controller DCC disabled)\n");
+                                }
                             }
                         }
                     }
