@@ -508,13 +508,16 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                          * output remained 30-bit, so it did not test this
                          * hypothesis.  Keep every 1.0.3 setting unchanged.
                          *
-                         * Do not yet label the collected ROM as OC or SILENT.
-                         * Its internal configuration identifies 281-W/2340-MHz
-                         * policy data, while the accompanying GPU-Z screenshot
-                         * reports 2015/2250-MHz defaults.  Preserve the file as
-                         * collected and resolve the discrepancy by dumping the
-                         * opposite physical switch position for a binary diff;
-                         * never flash either image as part of this diagnosis.
+                         * The operator confirms this Windows capture and ROM
+                         * dump were made with the physical switch in OC (no
+                         * SILENT capture was made).  Still preserve the useful
+                         * discrepancy: the ROM contains 281-W/2340-MHz policy
+                         * data, while GPU-Z reports 2015/2250-MHz defaults,
+                         * which PowerColor publishes for SILENT.  Treat the
+                         * switch position as OC but do not infer which policy
+                         * was active in software until a cold-boot capture from
+                         * the opposite position permits a binary/telemetry A/B.
+                         * Never flash either image as part of this diagnosis.
                          */
                         if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
                                         strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
