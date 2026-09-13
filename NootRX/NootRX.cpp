@@ -507,6 +507,18 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                          * kext never loaded, no patch marker appeared, and the
                          * output remained 30-bit, so it did not test this
                          * hypothesis.  Keep every 1.0.3 setting unchanged.
+                         * Ventura 13.7.8 build 22H730 ships the AMD X6000
+                         * bundles as metadata stubs: their CFBundleExecutable
+                         * is declared but Contents/MacOS is absent.  The loaded
+                         * 4.1.4 framebuffer (UUID E116BA99-722F-3D23-BC50-
+                         * 43C9564FADB7) lives in SystemKernelExtensions.kc.
+                         * Preserve and inspect that exact collection before
+                         * implementing 8-bpc.  A newer reference collection
+                         * contains three local symbols all named
+                         * __ZL18BITS_PER_COMPONENT inside X6000Framebuffer;
+                         * therefore a name-only solve/patch is ambiguous and
+                         * must not be deployed without mapping the 22H730
+                         * occurrences to their owning code and pixel formats.
                          *
                          * The operator confirms this Windows capture and ROM
                          * dump were made with the physical switch in OC (no
