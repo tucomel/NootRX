@@ -261,13 +261,14 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
     this->rdFlags.noStutter = checkFlag("rd-nostutter");
     this->rdFlags.floorDpm = checkFlag("rd-floordpm");
     this->rdFlags.noDcc = checkFlag("rd-nodcc");
+    this->rdFlags.noTwoStepPstate = checkFlag("rd-no2step");
     this->rdFlags.diag = checkFlag("rd-diag") || ADDPR(debugEnabled) || checkKernelArgument("-NRXDebug");
 
     this->appendLog("NootRX_fix: [INIT] Detected GPU 0x%04X:0x%02X\n", this->deviceId, this->pciRevision);
-    this->appendLog("NootRX_fix: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d diag=%d\n",
+    this->appendLog("NootRX_fix: [FLAGS] nogfxoff=%d noulv=%d novactivedram=%d nompo=%d nostutter=%d floordpm=%d nodcc=%d no2step=%d diag=%d\n",
                     this->rdFlags.noGfxOff, this->rdFlags.noUlv, this->rdFlags.noVActiveDram,
                     this->rdFlags.noMpo, this->rdFlags.noStutter, this->rdFlags.floorDpm,
-                    this->rdFlags.noDcc, this->rdFlags.diag);
+                    this->rdFlags.noDcc, this->rdFlags.noTwoStepPstate, this->rdFlags.diag);
 
     this->dyldpatches.processPatcher(patcher);
 
@@ -374,21 +375,48 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                          * - Avoiding pipe split caused yellow screens/resets.
                          * - Restoring GPUTaskSingleChannel in isolation did not
                          *   change the artifacts or reset signature.
-                         * - v1.0.7 native Navi21 passthrough was dramatically
-                         *   worse: severe artifacts and two independent
-                         *   DisplayPipe/GFX-51 resets about 24 seconds apart.
-                         *   Therefore NootRX's low-level Navi21 replacement is
-                         *   required on this board; it is not the residual
-                         *   artifact's cause.  Future experiments must start
-                         *   from tag 1.0.3 and change one narrow mechanism.
+                         * - v1.0.7's apparent native Navi21 passthrough was
+                         *   dramatically worse, but was not a valid native
+                         *   control: NootRX was still loaded, replacing driver
+                         *   catalogue entries/properties and patching AGDP.
+                         * - v1.0.8 restored the upstream MacPro7,1 AGDP
+                         *   exception; artifacts increased and GFX reset.
+                         * - v1.0.9 attempted the WEG-style 24-bpp table patch,
+                         *   but AMDFramebuffer never loaded on this Navi21
+                         *   path.  No [24BPP] marker appeared and ARGB2101010
+                         *   remained active, so that run did not test 24 bpp.
                          *
-                         * First untested follow-up (research 2026-09-13):
-                         * restore upstream's MacPro7,1 exception around the
-                         * AGDP board-id patch, and change nothing else.  This
-                         * fork currently forces that patch even though every
-                         * captured boot reports five "vendor modeset callback
-                         * invalid sequence or interleaving" warnings.  Treat
-                         * this as a testable correlation, not a proven cause.
+                         * Clean native control (2026-09-13): booting with only
+                         * Lilu 1.7.2 + WhateverGreen 1.7.0 + agdpmod=pikera,
+                         * both NootRX bundles disabled and every rd-* property
+                         * removed, reproduced the same artifact pattern and
+                         * was worse than 1.0.3.  Therefore NootRX is not the
+                         * root cause, while the 1.0.3 policy masks most of it.
+                         * Heaven load removes nearly every artifact; they
+                         * return immediately when Heaven exits.  A persistent
+                         * menu-bar tile also vanished only after mouse redraw.
+                         * This points to low-load power-state corruption of a
+                         * composed surface, not a transient DP cable error.
+                         * Future experiments must start from tag 1.0.3 and
+                         * change one narrow mechanism.
+                         *
+                         * v1.0.10 single-variable experiment: the active
+                         * generic Navi21 controller exposes only
+                         * SMU_DisallowedFeatures=0x4.  The same Ventura driver
+                         * publishes Apple's ATY,Belknap Navi21 policy as
+                         * 0xCBBD54A00284, which includes bit 46.  AMD's public
+                         * Sienna Cichlid SMU11 interface names bit 46
+                         * FEATURE_2_STEP_PSTATE_BIT.  Disable only that bit,
+                         * not the full Belknap mask, to test the transition
+                         * implicated by Heaven entering/leaving load.
+                         *
+                         * This deliberately does not send an SMU command,
+                         * force a clock, disable UCLK DPM, or touch
+                         * PP_MclkDpmDisabled/CFG_FORCEMAXDPM.  The property is
+                         * ORed into Apple's existing mask before the Navi21
+                         * controller starts, preserving native GDDR6 training
+                         * and every other 1.0.3 behavior.  rd-no2step remains
+                         * opt-in so removing one config property is rollback.
                          */
                         if (ioClass && (strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi21GraphicsAccelerator") == 0 ||
                                         strcmp(ioClass->getCStringNoCopy(), "AMDRadeonX6000_AMDNavi23GraphicsAccelerator") == 0)) {
@@ -443,6 +471,23 @@ bool NootRXMain::wrapAddDrivers(void *that, OSArray *array, bool doNubMatching) 
                                     atyProps->setObject("DalForceMinDpmLevel", v3);
                                     v3->release();
                                     callback->appendLog("NootRX_fix: [XML] aty_properties: DalForceMinDpmLevel=3 (DPM High floor)\n");
+                                }
+                                if (callback->rdFlags.noTwoStepPstate) {
+                                    constexpr UInt64 featureTwoStepPstate = 1ULL << 46;
+                                    UInt64 disallowedFeatures = 0;
+                                    if (auto *current = OSDynamicCast(OSNumber,
+                                            atyProps->getObject("SMU_DisallowedFeatures"))) {
+                                        disallowedFeatures = current->unsigned64BitValue();
+                                    }
+                                    const auto originalFeatures = disallowedFeatures;
+                                    disallowedFeatures |= featureTwoStepPstate;
+                                    auto *value = OSNumber::withNumber(disallowedFeatures, 64);
+                                    atyProps->setObject("SMU_DisallowedFeatures", value);
+                                    value->release();
+                                    callback->appendLog(
+                                        "NootRX_fix: [XML] aty_properties: SMU_DisallowedFeatures=0x%llX "
+                                        "(was 0x%llX; FEATURE_2_STEP_PSTATE bit 46 disabled)\n",
+                                        disallowedFeatures, originalFeatures);
                                 }
                             }
                             if (atyConfig && (callback->rdFlags.noMpo || callback->rdFlags.noStutter)) {
