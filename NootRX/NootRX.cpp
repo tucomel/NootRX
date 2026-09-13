@@ -235,7 +235,7 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
     DBGLOG("NootRX", "isNavi23: %s", this->attributes.isNavi23() ? "yes" : "no");
 
     /*
-     * Decision record (v1.0.6): use Apple's native Navi21 implementation on
+     * Decision record (v1.0.7): use Apple's native Navi21 implementation on
      * the exact Red Devil device tested under Ventura.
      *
      * Ventura 13.7.8 already includes 0x73BF1002 in both its Navi21
@@ -259,20 +259,24 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
      * machinery.
      *
      * The validation contract for this test release is Ventura 13.7.8 build
-     * 22H730.  Gate on the registry root's OS Build Version as well as
-     * Ventura: a later security build may change Apple's binaries or
-     * personality shape and must not silently inherit a mode it has never
-     * passed on this hardware.  A missing/non-string root property also fails
-     * this guard.  Post-boot diagnostics must still verify the same value.
+     * 22H730 (Darwin 22.6).  v1.0.6 tried to enforce 22H730 by reading the
+     * registry root here.  The 2026-09-13 diagnostic proved that this callback
+     * runs before "OS Build Version" is published: the completed IORegistry
+     * later contained 22H730, but [MODE] was 0 and the old [XML] path ran.
+     * Consequently v1.0.6 never tested native passthrough at all.
+     *
+     * Use Lilu's already-initialised Darwin major/minor values for the early
+     * decision instead.  Darwin 22.6 plus the complete PCI identity keeps the
+     * mode narrow enough for this controlled machine without depending on a
+     * property whose publication order is too late.  The exact macOS build is
+     * deliberately a post-boot release check (sw_vers/os_version.txt); a build
+     * other than 22H730 must not be accepted as a valid result for this test.
      */
     auto subsystemVendorId = WIOKit::readPCIConfigValue(this->dGPU, WIOKit::kIOPCIConfigSubSystemVendorID);
     auto subsystemId = WIOKit::readPCIConfigValue(this->dGPU, WIOKit::kIOPCIConfigSubSystemID);
-    auto *registryRoot = IORegistryEntry::getRegistryRoot();
-    auto *osBuildVersion =
-        registryRoot ? OSDynamicCast(OSString, registryRoot->getProperty("OS Build Version")) : nullptr;
-    this->nativeNavi21Passthrough = getKernelVersion() == KernelVersion::Ventura && this->deviceId == 0x73BF &&
-        this->pciRevision == 0xC0 && subsystemVendorId == 0x148C && subsystemId == 0x2408 &&
-        osBuildVersion != nullptr && osBuildVersion->isEqualTo("22H730");
+    this->nativeNavi21Passthrough = getKernelVersion() == KernelVersion::Ventura && getKernelMinorVersion() == 6 &&
+        this->deviceId == 0x73BF && this->pciRevision == 0xC0 && subsystemVendorId == 0x148C &&
+        subsystemId == 0x2408;
 
     DeviceInfo::deleter(devInfo);
 
@@ -322,8 +326,8 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
                     this->rdFlags.noMpo, this->rdFlags.noStutter, this->rdFlags.floorDpm,
                     this->rdFlags.noDcc, this->rdFlags.diag);
 
-    this->appendLog("NootRX_fix: [MODE] native-navi21-passthrough=%d (22H730 + 1002:73BF/C0 + 148C:2408 only)\n",
-                    this->nativeNavi21Passthrough);
+    this->appendLog("NootRX_fix: [MODE] native-navi21-passthrough=%d (Darwin %d.%d + 1002:73BF/C0 + 148C:2408; validate 22H730 post-boot)\n",
+                    this->nativeNavi21Passthrough, getKernelVersion(), getKernelMinorVersion());
 
     if (!this->nativeNavi21Passthrough) {
         this->dyldpatches.processPatcher(patcher);
@@ -331,6 +335,7 @@ void NootRXMain::processPatcher(KernelPatcher &patcher) {
         // Keep a durable IORegistry marker so the post-boot diagnostic can
         // prove this path was selected even if the file log is truncated.
         this->dGPU->setProperty("NootRXNativeNavi21Passthrough", 1, 32);
+        this->dGPU->setProperty("NootRXNativeDarwinMinor", getKernelMinorVersion(), 32);
         this->appendLog("NootRX_fix: [NATIVE] Preserving Apple's dyld/video code path; NootRX shared-cache patches skipped\n");
     }
 
@@ -499,7 +504,7 @@ void NootRXMain::patchDriverPersonality(OSDictionary *drvDict, bool nativePerson
             source);
     }
     if (nativePersonality) {
-        // Paired with NootRXNativeAcceleratorOverlay.  A v1.0.6 run is valid
+        // Paired with NootRXNativeAcceleratorOverlay.  A v1.0.7 run is valid
         // only when both markers and all effective values appear in IORegistry.
         callback->dGPU->setProperty("NootRXNativeControllerOverlay", 1, 32);
     }
@@ -642,7 +647,7 @@ void NootRXMain::processKext(KernelPatcher &patcher, size_t id, mach_vm_address_
         }
     } else if (this->nativeNavi21Passthrough) {
         /*
-         * v1.0.6 native passthrough intentionally leaves Apple's exact
+         * v1.0.7 native passthrough intentionally leaves Apple's exact
          * 0x73BF/C0 framebuffer, HWServices/HWLibs and accelerator binaries
          * untouched.  Do not call ensureRMMIO here: doing so would only be a
          * precursor to NootRX's capability/firmware substitution and would
